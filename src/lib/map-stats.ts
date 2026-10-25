@@ -34,7 +34,10 @@ export function computeStats(
     const state = countingState(country);
     if (state) states.add(state);
   }
-  counts.planned = planned.size;
+  // « Prévu » ne compte que les pays qui ne sont ni « j'y vis » ni « visité ».
+  counts.planned = [...planned].filter(
+    (key) => statuses[key] !== "home" && statuses[key] !== "visited",
+  ).length;
 
   return {
     countryCount: states.size,

@@ -11,13 +11,12 @@ import {
   type CountryStatus,
   type DisplayStatus,
 } from "@/lib/map-store";
+import { plannedCountries } from "@/lib/trip-utils";
+import { useTripsStore } from "@/lib/trips-store";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { CountryPanel } from "./country-panel";
 import { MapLegend } from "./map-legend";
 import { WorldMap, type MapAnchor, type WorldMapHandle } from "./world-map";
-
-// « Prévu » viendra des voyages à venir (étape Voyages) : aucun pour l'instant.
-const NO_PLANNED: ReadonlySet<string> = new Set();
 
 type Selection = { key: string; anchor: MapAnchor | null };
 
@@ -37,7 +36,10 @@ export function MaCarte() {
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState(false);
 
-  const stats = useMemo(() => computeStats(statuses, NO_PLANNED), [statuses]);
+  const trips = useTripsStore((state) => state.trips);
+  // « Prévu » : pays traversés par un voyage prévu qui n'est pas encore terminé.
+  const planned = useMemo(() => plannedCountries(trips), [trips]);
+  const stats = useMemo(() => computeStats(statuses, planned), [statuses, planned]);
 
   const open = useCallback((key: string, anchor: MapAnchor | null) => {
     // On retient l'élément qui avait le focus (la recherche, par exemple) pour le lui rendre.
@@ -109,11 +111,11 @@ export function MaCarte() {
         <WorldMap
           ref={mapRef}
           statuses={statuses}
-          planned={NO_PLANNED}
+          planned={planned}
           hidden={hidden}
           selectedKey={selected?.key ?? null}
           animateKey={animateKey}
-          showInvite={hydrated && Object.keys(statuses).length === 0}
+          showInvite={hydrated && Object.keys(statuses).length === 0 && planned.size === 0}
           onSelect={open}
           onUserZoom={handleUserZoom}
         />

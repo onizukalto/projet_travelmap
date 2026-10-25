@@ -21,6 +21,8 @@ export type CountryShape = {
   centroid: [number, number];
 };
 
+export type KeyedFeature = { key: string; feature: Feature<Geometry, { name: string }> };
+
 export type CountryPoint = {
   key: string;
   x: number;
@@ -47,9 +49,11 @@ function buildWorld() {
   const height = Math.ceil(bottom - top + MARGIN * 2);
 
   const shapes: CountryShape[] = [];
+  const keyed: KeyedFeature[] = [];
   for (const f of features) {
     const key = (f.id as string | undefined) ?? UNCODED_FEATURES[f.properties.name];
     if (!key || !COUNTRY_BY_KEY.has(key)) continue;
+    keyed.push({ key, feature: f });
     shapes.push({
       key,
       d: path(f) ?? "",
@@ -71,6 +75,8 @@ function buildWorld() {
     sphere: path({ type: "Sphere" }) ?? "",
     graticule: path(geoGraticule10()) ?? "",
     shapes,
+    /** Contours géographiques (longitude, latitude), pour retrouver le pays d'un point. */
+    features: keyed,
     shapeByKey: new Map(shapes.map((s) => [s.key, s])),
     points,
     pointByKey: new Map(points.map((p) => [p.key, p])),

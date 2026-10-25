@@ -2,12 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { NAV_ITEMS, isActive } from "@/lib/nav";
 
 /** Barre d'onglets en bas de l'écran, sur mobile uniquement. */
 export function MobileTabBar() {
-  const pathname = usePathname();
+  return (
+    <Suspense fallback={<TabBar pathname={null} />}>
+      <ActiveTabBar />
+    </Suspense>
+  );
+}
 
+function ActiveTabBar() {
+  return <TabBar pathname={usePathname()} />;
+}
+
+function TabBar({ pathname }: { pathname: string | null }) {
   return (
     <nav
       aria-label="Navigation principale"
@@ -15,7 +26,7 @@ export function MobileTabBar() {
     >
       <ul className="grid grid-cols-3">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = isActive(pathname, href);
+          const active = pathname !== null && isActive(pathname, href);
           return (
             <li key={href}>
               <Link

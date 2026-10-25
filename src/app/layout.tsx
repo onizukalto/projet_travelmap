@@ -5,6 +5,7 @@ import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { SiteHeader } from "@/components/site-header";
 import { StoreHydration } from "@/components/store-hydration";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/toaster";
 import "./globals.css";
 
 const overpass = Overpass({
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
           </main>
           <MobileTabBar />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

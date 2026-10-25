@@ -2,17 +2,32 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { NAV_ITEMS, isActive } from "@/lib/nav";
 
-/** Navigation principale (ordinateur et tablette). Le lien actif est surligné au marqueur. */
+/**
+ * Navigation principale (ordinateur et tablette). Le lien actif est surligné au marqueur.
+ * L'adresse d'une page dynamique (/voyages/123) n'est connue qu'à la visite :
+ * en attendant, les liens s'affichent sans surligneur.
+ */
 export function MainNav() {
-  const pathname = usePathname();
+  return (
+    <Suspense fallback={<NavLinks pathname={null} />}>
+      <ActiveNav />
+    </Suspense>
+  );
+}
 
+function ActiveNav() {
+  return <NavLinks pathname={usePathname()} />;
+}
+
+function NavLinks({ pathname }: { pathname: string | null }) {
   return (
     <nav aria-label="Navigation principale" className="hidden md:block">
       <ul className="flex items-center gap-1">
         {NAV_ITEMS.map((item) => {
-          const active = isActive(pathname, item.href);
+          const active = pathname !== null && isActive(pathname, item.href);
           return (
             <li key={item.href}>
               <Link

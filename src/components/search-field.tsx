@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { StatusSwatch } from "@/components/map-patterns";
 import { CONTINENTS, searchCountries, type Country } from "@/data/countries";
@@ -70,7 +70,6 @@ function CountrySearch({
   onDone?: () => void;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
   const statuses = useMapStore((state) => state.countryStatuses);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -84,7 +83,7 @@ function CountrySearch({
     setQuery("");
     setOpen(false);
     onDone?.();
-    if (pathname !== "/") router.push("/");
+    if (window.location.pathname !== "/") router.push("/");
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

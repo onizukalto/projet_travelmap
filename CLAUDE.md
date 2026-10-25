@@ -190,20 +190,23 @@ Toutes les couleurs passent par ces variables. Aucune couleur n'est codée en du
 
 ### Modèle de données (côté client)
 
-- `countryStatuses: Record<codeIsoNumérique, 'home' | 'visited' | 'wish'>`. Le statut « prévu » n'est pas stocké : il se déduit d'un voyage à venir qui passe par le pays.
-- `trips: Trip[]`, où un `Trip` contient :
-  - `id`, `title` ;
-  - `countries: string[]` ;
-  - `startDate?`, `endDate?` ;
+- `countryStatuses: Record<codeIsoNumérique, 'home' | 'visited' | 'wish'>`, enregistré sous la clé `travelmap-carte`. Un seul pays peut être « j'y vis » : en choisir un autre fait passer l'ancien en « visité ». Le statut « prévu » n'est pas stocké : il se déduit d'un voyage `planned` non terminé qui passe par le pays, s'il n'est pas déjà « j'y vis » ou « visité ».
+- `trips: Trip[]`, enregistré sous la clé `travelmap-voyages`, où un `Trip` contient :
+  - `id` : identifiant court de 8 caractères, utilisé dans l'adresse `/voyages/[id]` ;
+  - `title` ;
+  - `countries: string[]` : codes ISO numériques des pays traversés, déduits des étapes dans l'ordre du voyage (jamais saisis à la main) ;
+  - `startDate?`, `endDate?` : dates au format `AAAA-MM-JJ` ;
   - `status: 'idea' | 'planned' | 'done'` ;
   - `stops: Stop[]` ;
   - `notes` ;
-  - `checklist: { id, label, done }[]`.
+  - `checklist: { id, label, done }[]` ;
+  - `budget: { id, label, amount }[]` : lignes de budget, montants en euros.
 - `Stop` contient :
   - `id`, `day`, `order`, `name` ;
   - `lat`, `lon` ;
   - `note` ;
-  - `transport: 'road' | 'ferry' | 'flight' | 'train' | 'walk'`, qui indique comment on arrive depuis l'étape précédente.
+  - `transport: 'road' | 'ferry' | 'flight' | 'train' | 'walk'`, qui indique comment on arrive depuis l'étape précédente ;
+  - `country: string | null` : code ISO numérique du pays de l'étape, calculé localement avec `d3.geoContains` sur les frontières de world-atlas.
 
 ## Plan
 

@@ -56,6 +56,8 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
         pepiteIds={pepites}
         minSpan={0.25}
         labels
+        // La mini-carte du parcours occupe le coin bas droit à partir de sm.
+        controlsClassName="right-3 bottom-3 sm:top-3 sm:bottom-auto"
         legend={
           <ul aria-label="Légende" className="flex gap-4 text-small text-ink-2">
             <li className="flex items-center gap-1.5">

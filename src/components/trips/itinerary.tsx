@@ -46,7 +46,9 @@ export function Itinerary({ trip, dayCount, selectedDay, onSelectDay }: Props) {
         return (
           <li
             key={day}
-            className={`rounded-panel p-2 transition-colors duration-150 ${selected ? "bg-surface ring-1 ring-line" : ""}`}
+            className={`rounded-panel border p-1.5 transition-[border-color,background-color] duration-200 ${
+              selected ? "border-ink bg-surface" : "border-border bg-surface hover:border-line-strong"
+            }`}
           >
             <button
               type="button"
@@ -62,12 +64,12 @@ export function Itinerary({ trip, dayCount, selectedDay, onSelectDay }: Props) {
                   endDrag();
                 }
               }}
-              className="flex min-h-11 w-full cursor-pointer items-baseline gap-3 rounded-control px-2 text-left hover:bg-bg"
+              className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-control px-2 text-left transition-colors duration-150 hover:bg-surface-2"
             >
-              {/* Le jour choisi est surligné au marqueur, comme le lien actif de la navigation. */}
+              {/* Le jour choisi prend la pastille jaune, comme le lien actif de la navigation. */}
               <span
-                className={`px-0.5 pt-0.5 font-extrabold text-ink transition-shadow duration-150 ${
-                  selected ? "shadow-[inset_0_-8px_0_var(--visited)] dark:shadow-[inset_0_-3px_0_var(--visited)]" : ""
+                className={`rounded-badge border px-2 py-0.5 font-display text-[17px] font-extrabold tracking-[-0.02em] text-ink transition-colors duration-200 ${
+                  selected ? "border-ink bg-accent-yellow text-on-accent" : "border-transparent"
                 }`}
               >
                 Jour {day}
@@ -78,7 +80,8 @@ export function Itinerary({ trip, dayCount, selectedDay, onSelectDay }: Props) {
               </span>
             </button>
             {stops.length > 0 && (
-              <ol className="mt-1 flex flex-col">
+              // Le rail vertical relie les étapes du jour, comme sur une frise.
+              <ol className="relative mt-1 flex flex-col before:absolute before:top-5 before:bottom-5 before:left-[47.5px] before:w-px before:bg-line-strong">
                 {stops.map((stop) => {
                   const index = indexOf.get(stop.id)!;
                   return (
@@ -144,7 +147,7 @@ function StopRow({
   const Icon = TRANSPORT_ICONS[stop.transport];
   const country = stop.country ? COUNTRY_BY_KEY.get(stop.country)?.name : null;
   const iconButton =
-    "flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-bg hover:text-ink disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent";
+    "flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent";
 
   return (
     <li
@@ -174,11 +177,11 @@ function StopRow({
           title="Glisser pour réordonner"
           className="flex h-11 w-6 shrink-0 cursor-grab items-center justify-center text-muted active:cursor-grabbing"
         >
-          <GripVertical strokeWidth={1.8} className="size-4" />
+          <GripVertical strokeWidth={1.75} className="size-4" />
         </span>
         <span
           aria-hidden
-          className="mt-2 flex size-7 shrink-0 items-center justify-center rounded-full bg-ink text-small font-extrabold text-surface tabular-nums"
+          className="relative mt-2 flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-surface bg-ink text-small font-extrabold text-bg tabular-nums"
         >
           {index + 1}
         </span>
@@ -197,12 +200,12 @@ function StopRow({
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-ink-2">
             {index > 0 && (
               <label className="flex items-center gap-1.5">
-                <Icon aria-hidden strokeWidth={1.8} className="size-4" />
+                <Icon aria-hidden strokeWidth={1.75} className="size-4" />
                 <span className="sr-only">Arrivée depuis l&apos;étape précédente</span>
                 <select
                   value={stop.transport}
                   onChange={(event) => updateStop(trip.id, stop.id, { transport: event.target.value as Transport })}
-                  className="min-h-8 cursor-pointer rounded-badge border border-line bg-surface-raised px-1.5 text-small text-ink hover:border-ink-2"
+                  className="min-h-8 cursor-pointer rounded-badge border border-line bg-surface px-1.5 text-small text-ink hover:border-ink"
                 >
                   {TRANSPORT_ORDER.map((t) => (
                     <option key={t} value={t}>
@@ -217,7 +220,7 @@ function StopRow({
               <select
                 value={stop.day}
                 onChange={(event) => updateStop(trip.id, stop.id, { day: Number(event.target.value) })}
-                className="min-h-8 cursor-pointer rounded-badge border border-line bg-surface-raised px-1.5 text-small text-ink hover:border-ink-2"
+                className="min-h-8 cursor-pointer rounded-badge border border-line bg-surface px-1.5 text-small text-ink hover:border-ink"
               >
                 {Array.from({ length: dayCount + 1 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -237,7 +240,7 @@ function StopRow({
                 value={stop.note}
                 onChange={(event) => updateStop(trip.id, stop.id, { note: event.target.value })}
                 placeholder="Une adresse, une réservation, une idée…"
-                className="block w-full resize-y rounded-control border border-line-strong bg-surface-raised px-3 py-2 text-caption text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink"
+                className="block w-full resize-y rounded-control border border-line-strong bg-surface px-3 py-2 text-caption text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink"
               />
             </label>
           )}
@@ -250,7 +253,7 @@ function StopRow({
             onClick={() => moveStop(trip.id, stop.id, index - 1)}
             className={iconButton}
           >
-            <ChevronUp aria-hidden strokeWidth={1.8} className="size-[18px]" />
+            <ChevronUp aria-hidden strokeWidth={1.75} className="size-[18px]" />
           </button>
           <button
             type="button"
@@ -259,7 +262,7 @@ function StopRow({
             onClick={() => moveStop(trip.id, stop.id, index + 1)}
             className={iconButton}
           >
-            <ChevronDown aria-hidden strokeWidth={1.8} className="size-[18px]" />
+            <ChevronDown aria-hidden strokeWidth={1.75} className="size-[18px]" />
           </button>
           <button
             type="button"
@@ -268,7 +271,7 @@ function StopRow({
             onClick={() => setNoteOpen((value) => !value)}
             className={`${iconButton} ${noteOpen ? "text-ink" : ""}`}
           >
-            <NotebookPen aria-hidden strokeWidth={1.8} className="size-[18px]" />
+            <NotebookPen aria-hidden strokeWidth={1.75} className="size-[18px]" />
           </button>
           <button
             type="button"
@@ -276,7 +279,7 @@ function StopRow({
             onClick={() => removeStop(trip.id, stop.id)}
             className={`${iconButton} hover:text-warn-ink`}
           >
-            <Trash2 aria-hidden strokeWidth={1.8} className="size-[18px]" />
+            <Trash2 aria-hidden strokeWidth={1.75} className="size-[18px]" />
           </button>
         </div>
       </div>

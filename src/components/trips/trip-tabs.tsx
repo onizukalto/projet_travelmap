@@ -9,7 +9,7 @@ import { PrepBar } from "./trip-cards";
 const SUGGESTIONS = ["Passeport", "Assurance voyage", "Réserver les ferries", "Permis international", "Adaptateur électrique"];
 
 const iconButton =
-  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-bg hover:text-warn-ink";
+  "flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-warn-ink";
 
 /** Onglet Préparation : une checklist. */
 export function ChecklistTab({ trip }: { trip: Trip }) {
@@ -33,7 +33,7 @@ export function ChecklistTab({ trip }: { trip: Trip }) {
       {items.length > 0 && (
         <ul className="flex flex-col">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-1 rounded-control hover:bg-surface">
+            <li key={item.id} className="flex items-center gap-1 rounded-control hover:bg-surface-2">
               <label className="flex min-h-11 flex-1 cursor-pointer items-center gap-3 px-2">
                 <input
                   type="checkbox"
@@ -49,7 +49,7 @@ export function ChecklistTab({ trip }: { trip: Trip }) {
                 onClick={() => save(items.filter((i) => i.id !== item.id))}
                 className={iconButton}
               >
-                <Trash2 aria-hidden strokeWidth={1.8} className="size-[18px]" />
+                <Trash2 aria-hidden strokeWidth={1.75} className="size-[18px]" />
               </button>
             </li>
           ))}
@@ -71,10 +71,10 @@ export function ChecklistTab({ trip }: { trip: Trip }) {
           value={label}
           onChange={(event) => setLabel(event.target.value)}
           placeholder="Réserver la voiture…"
-          className="h-11 min-w-0 flex-1 rounded-control border border-line-strong bg-surface-raised px-3 text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink"
+          className="h-11 min-w-0 flex-1 rounded-control border border-line-strong bg-surface px-3 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink"
         />
         <button type="submit" className={buttonSecondary}>
-          <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+          <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
           Ajouter
         </button>
       </form>
@@ -87,9 +87,9 @@ export function ChecklistTab({ trip }: { trip: Trip }) {
                 key={suggestion}
                 type="button"
                 onClick={() => add(suggestion)}
-                className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-control border border-dashed border-line-strong px-3 text-caption text-ink-2 hover:border-ink-2 hover:text-ink"
+                className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-control border border-dashed border-line-strong px-3 text-caption text-ink-2 hover:border-ink hover:text-ink"
               >
-                <Plus aria-hidden strokeWidth={1.8} className="size-4" />
+                <Plus aria-hidden strokeWidth={1.75} className="size-4" />
                 {suggestion}
               </button>
             ))}
@@ -125,7 +125,7 @@ export function BudgetTab({ trip }: { trip: Trip }) {
                     save(lines.map((l) => (l.id === line.id ? { ...l, label: event.target.value } : l)))
                   }
                   placeholder="Libellé"
-                  className="h-11 w-full rounded-control border border-line-strong bg-surface-raised px-3 text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink"
+                  className="h-11 w-full rounded-control border border-line-strong bg-surface px-3 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink"
                 />
               </label>
               <label className="relative w-32 shrink-0">
@@ -143,7 +143,7 @@ export function BudgetTab({ trip }: { trip: Trip }) {
                       ),
                     )
                   }
-                  className="h-11 w-full rounded-control border border-line-strong bg-surface-raised pr-8 pl-3 text-right text-ink tabular-nums hover:border-ink-2 focus-visible:border-ink"
+                  className="h-11 w-full rounded-control border border-line-strong bg-surface pr-8 pl-3 text-right text-ink tabular-nums hover:border-ink focus-visible:border-ink"
                 />
                 <span aria-hidden className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-ink-2">
                   €
@@ -155,7 +155,7 @@ export function BudgetTab({ trip }: { trip: Trip }) {
                 onClick={() => save(lines.filter((l) => l.id !== line.id))}
                 className={iconButton}
               >
-                <Trash2 aria-hidden strokeWidth={1.8} className="size-[18px]" />
+                <Trash2 aria-hidden strokeWidth={1.75} className="size-[18px]" />
               </button>
             </li>
           ))}
@@ -166,12 +166,12 @@ export function BudgetTab({ trip }: { trip: Trip }) {
         onClick={() => save([...lines, { id: newId(), label: "", amount: 0 }])}
         className={`${buttonSecondary} self-start`}
       >
-        <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+        <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
         Ajouter une ligne
       </button>
       <p className="flex items-baseline justify-between border-t border-line pt-4">
         <span className="font-semibold text-ink">Total</span>
-        <span className="text-[24px] font-extrabold text-ink tabular-nums">{euros.format(total)}</span>
+        <span className="font-display text-[28px] font-extrabold tracking-[-0.03em] text-ink tabular-nums">{euros.format(total)}</span>
       </p>
     </div>
   );
@@ -192,7 +192,7 @@ export function NotesTab({ trip }: { trip: Trip }) {
         value={trip.notes}
         onChange={(event) => updateTrip(trip.id, { notes: event.target.value })}
         placeholder="Ce qu'il ne faut pas oublier, les adresses glanées, les souvenirs…"
-        className="block w-full resize-y rounded-control border border-line-strong bg-surface-raised px-4 py-3 text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink"
+        className="block w-full resize-y rounded-control border border-line-strong bg-surface px-4 py-3 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink"
       />
       <p className="mt-2 text-small text-muted">Enregistré automatiquement dans ce navigateur.</p>
     </div>

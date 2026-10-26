@@ -1,32 +1,37 @@
+"use client";
+
+import { ArrowUpRight } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
+import { useRef } from "react";
+import { Badge, type BadgeTone } from "@/components/ui/badge";
 import {
   countByTransport,
   countryNames,
   dateRange,
   departure,
   km,
+  parseDate,
   plural,
   preparation,
   tripDays,
+  today,
   tripKm,
   tripMonth,
 } from "@/lib/trip-utils";
 import type { Trip, TripStatus } from "@/lib/trips-store";
 import { MiniRouteMap } from "./mini-route-map";
 
-const BADGE: Record<TripStatus, string> = {
-  planned: "bg-warn-bg text-warn-ink",
-  done: "bg-pepite-bg text-pepite",
-  idea: "border border-dashed border-line-strong text-ink-2",
+const BADGE: Record<TripStatus, { tone: BadgeTone; label: string }> = {
+  planned: { tone: "orange", label: "Prévu" },
+  done: { tone: "yellow", label: "Terminé" },
+  idea: { tone: "dashed", label: "Idée" },
 };
 
+/** Statut d'un voyage : Prévu (orange), Terminé (jaune), Idée (pointillés). */
 export function StatusBadge({ status }: { status: TripStatus }) {
-  const label = { planned: "Prévu", done: "Terminé", idea: "Idée" }[status];
-  return (
-    <span className={`inline-flex items-center rounded-badge px-2 pt-1 pb-0.5 text-small font-bold ${BADGE[status]}`}>
-      {label}
-    </span>
-  );
+  const { tone, label } = BADGE[status];
+  return <Badge tone={tone}>{label}</Badge>;
 }
 
 /** Barre de préparation, calculée sur la checklist. */
@@ -36,9 +41,7 @@ export function PrepBar({ trip }: { trip: Trip }) {
     <div>
       <div className="flex items-baseline justify-between text-caption">
         <span className="font-semibold text-ink">Préparation</span>
-        <span className="text-ink-2 tabular-nums">
-          {total ? `${done} sur ${total}` : "Checklist vide"}
-        </span>
+        <span className="text-ink-2 tabular-nums">{total ? `${done} sur ${total}` : "Checklist vide"}</span>
       </div>
       <div
         role="progressbar"
@@ -46,10 +49,10 @@ export function PrepBar({ trip }: { trip: Trip }) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(ratio * 100)}
-        className="mt-1.5 h-2 overflow-hidden rounded-full bg-line"
+        className="mt-1.5 h-3 overflow-hidden rounded-[3px] border border-border bg-surface-2"
       >
         <div
-          className="h-full origin-left rounded-full bg-ink transition-transform duration-500 ease-out"
+          className="h-full origin-left bg-accent-yellow transition-transform duration-700 ease-[var(--ease-spring)]"
           style={{ transform: `scaleX(${ratio})` }}
         />
       </div>
@@ -57,41 +60,68 @@ export function PrepBar({ trip }: { trip: Trip }) {
   );
 }
 
+/** Le compte à rebours en gros chiffre : « 59 jours avant le départ ». */
+function Countdown({ trip }: { trip: Trip }) {
+  const jours = trip.startDate ? Math.round((+parseDate(trip.startDate) - +today()) / 86_400_000) : null;
+  if (jours === null || jours < 1) {
+    return <p className="font-display text-[28px] leading-none font-extrabold tracking-[-0.03em] text-ink">{departure(trip)}</p>;
+  }
+  return (
+    <p className="flex items-baseline gap-2 text-ink">
+      <span className="font-display text-[64px] leading-[0.85] font-extrabold tracking-[-0.05em] tabular-nums md:text-[80px]">
+        {jours}
+      </span>
+      <span className="text-caption font-medium text-ink-2">{jours > 1 ? "jours avant le départ" : "jour avant le départ"}</span>
+    </p>
+  );
+}
+
 function Figure({ label, value }: { label: string; value: string | number }) {
   return (
-    <div>
+    <div className="px-4 py-3 first:pl-0">
       <dt className="text-small text-muted">{label}</dt>
-      <dd className="text-[22px] leading-tight font-extrabold text-ink tabular-nums">{value}</dd>
+      <dd className="font-display text-[22px] leading-tight font-bold tracking-[-0.02em] text-ink tabular-nums">{value}</dd>
     </div>
   );
 }
 
-/** Grande fiche du prochain voyage. */
+/** Grande fiche du prochain voyage, avec un léger parallaxe sur sa carte. */
 export function NextTripCard({ trip }: { trip: Trip }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [-18, 18]);
   const countries = countryNames(trip);
+
   return (
     <Link
+      ref={ref}
       href={`/voyages/${trip.id}`}
-      className="group grid overflow-hidden rounded-panel border border-line bg-surface transition-colors duration-150 hover:border-ink-2 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
+      className="group grid overflow-hidden rounded-panel border border-border bg-surface transition-[transform,box-shadow] duration-200 ease-[var(--ease-spring)] hover:-translate-y-1 hover:shadow-float lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]"
     >
-      <MiniRouteMap
-        trip={trip}
-        detailed
-        className="block aspect-[5/3] h-full w-full md:aspect-auto md:min-h-72"
-      />
-      <div className="flex flex-col gap-4 p-5 md:p-7">
+      <div className="relative overflow-hidden border-b border-border bg-ocean lg:border-r lg:border-b-0">
+        <motion.div style={{ y }} className="h-full scale-[1.08]">
+          <MiniRouteMap trip={trip} detailed className="block aspect-[16/10] h-full w-full lg:aspect-auto lg:min-h-80" />
+        </motion.div>
+      </div>
+      <div className="flex flex-col gap-5 p-5 md:p-7">
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={trip.status} />
-          <span className="text-caption font-semibold text-ink-2">{departure(trip)}</span>
+          <span className="text-caption text-ink-2">{dateRange(trip) ?? "Dates à fixer"}</span>
         </div>
+        <Countdown trip={trip} />
         <div>
-          <h3 className="text-[24px] leading-tight font-extrabold text-ink group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">
+          <h3 className="flex items-start justify-between gap-3 font-display text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-ink">
             {trip.title}
+            <ArrowUpRight
+              aria-hidden
+              strokeWidth={1.75}
+              className="mt-1 size-6 shrink-0 transition-transform duration-200 ease-[var(--ease-spring)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
           </h3>
-          <p className="mt-1 text-ink-2">{dateRange(trip) ?? "Dates à fixer"}</p>
           {countries.length > 0 && <p className="mt-1 text-caption text-muted">{countries.join(", ")}</p>}
         </div>
-        <dl className="grid grid-cols-3 gap-3">
+        <dl className="grid grid-cols-3 divide-x divide-line border-y border-line">
           <Figure label="Durée" value={plural(tripDays(trip), "jour", "jours")} />
           <Figure label="Étapes" value={trip.stops.length} />
           <Figure label="Ferries" value={countByTransport(trip, "ferry")} />
@@ -119,11 +149,7 @@ export function NextTripCard({ trip }: { trip: Trip }) {
 export function TripCard({ trip }: { trip: Trip }) {
   const idea = trip.status === "idea";
   const meta =
-    trip.status === "done"
-      ? (tripMonth(trip) ?? "Sans date")
-      : trip.status === "planned"
-        ? departure(trip)
-        : "Idée";
+    trip.status === "done" ? (tripMonth(trip) ?? "Sans date") : trip.status === "planned" ? departure(trip) : null;
   const distance = tripKm(trip);
   const details =
     trip.status === "idea"
@@ -135,16 +161,22 @@ export function TripCard({ trip }: { trip: Trip }) {
   return (
     <Link
       href={`/voyages/${trip.id}`}
-      className={`group flex flex-col overflow-hidden rounded-panel bg-surface transition-colors duration-150 ${
-        idea
-          ? "border-2 border-dashed border-line-strong hover:border-ink-2"
-          : "border border-line hover:border-ink-2"
+      className={`group flex w-full flex-col overflow-hidden rounded-panel bg-surface transition-[transform,box-shadow] duration-200 ease-[var(--ease-spring)] hover:-translate-y-1 hover:shadow-float ${
+        idea ? "border border-dashed border-line-strong" : "border border-border"
       }`}
     >
-      <MiniRouteMap trip={trip} className="block aspect-[5/3] w-full" />
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <p className="text-small font-semibold text-ink-2 first-letter:uppercase">{meta}</p>
-        <h3 className="text-[18px] leading-snug font-bold text-ink group-hover:underline group-hover:underline-offset-4">
+      <div className={`overflow-hidden bg-ocean ${idea ? "border-b border-dashed border-line-strong" : "border-b border-border"}`}>
+        <MiniRouteMap
+          trip={trip}
+          className="block aspect-[16/10] w-full transition-transform duration-500 ease-[var(--ease-spring)] group-hover:scale-[1.04]"
+        />
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge status={trip.status} />
+          {meta && <span className="text-small text-ink-2 first-letter:uppercase">{meta}</span>}
+        </div>
+        <h3 className="font-display text-[20px] leading-snug font-bold tracking-[-0.02em] text-ink group-hover:underline group-hover:decoration-2 group-hover:underline-offset-4">
           {trip.title}
         </h3>
         <p className="mt-auto flex flex-wrap gap-x-2 pt-1 text-caption text-muted tabular-nums">

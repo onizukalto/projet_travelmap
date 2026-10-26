@@ -27,19 +27,19 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
   const [transport, setTransport] = useState<Transport>("road");
 
   return (
-    <section aria-labelledby={`${id}-titre`} className="rounded-panel border border-line bg-surface p-4 md:p-5">
-      <h3 id={`${id}-titre`} className="font-bold text-ink">
+    <section aria-labelledby={`${id}-titre`} className="rounded-panel border border-border bg-surface p-4 md:p-5">
+      <h3 id={`${id}-titre`} className="font-display text-[19px] font-extrabold tracking-[-0.02em] text-ink">
         Ajouter une étape
       </h3>
       <p className="mt-0.5 text-caption text-ink-2">Cherche un lieu, ou clique sur la carte.</p>
 
       <div className="mt-3">
         {place || placeLoading ? (
-          <div className="flex min-h-11 items-center gap-2 rounded-control border border-ink bg-surface-raised py-1 pr-1 pl-3">
+          <div className="flex min-h-11 items-center gap-2 rounded-control border border-ink bg-surface py-1 pr-1 pl-3">
             {placeLoading ? (
-              <LoaderCircle aria-hidden strokeWidth={1.8} className="size-[18px] animate-spin text-ink-2 motion-reduce:animate-none" />
+              <LoaderCircle aria-hidden strokeWidth={1.75} className="size-[18px] animate-spin text-ink-2 motion-reduce:animate-none" />
             ) : (
-              <MapPin aria-hidden strokeWidth={1.8} className="size-[18px] text-ink" />
+              <MapPin aria-hidden strokeWidth={1.75} className="size-[18px] text-ink" />
             )}
             <span className="flex-1 truncate font-semibold text-ink">
               {placeLoading ? "Recherche du lieu…" : place?.label}
@@ -48,9 +48,9 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
               type="button"
               aria-label="Changer de lieu"
               onClick={() => onPlaceChange(null)}
-              className="flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:bg-bg hover:text-ink"
+              className="flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:bg-surface-2 hover:text-ink"
             >
-              <X aria-hidden strokeWidth={1.8} className="size-[18px]" />
+              <X aria-hidden strokeWidth={1.75} className="size-[18px]" />
             </button>
           </div>
         ) : (
@@ -64,7 +64,7 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
           <select
             value={Math.min(day, dayCount + 1)}
             onChange={(event) => setDay(Number(event.target.value))}
-            className="mt-1 block h-11 w-full cursor-pointer rounded-control border border-line-strong bg-surface-raised px-3 text-body font-normal text-ink hover:border-ink-2 sm:w-32"
+            className="mt-1 block h-11 w-full cursor-pointer rounded-control border border-line-strong bg-surface px-3 text-body font-normal text-ink hover:border-ink sm:w-32"
           >
             {Array.from({ length: dayCount + 1 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
@@ -85,7 +85,7 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
                 <label
                   key={value}
                   className={`flex min-h-11 cursor-pointer items-center gap-1.5 rounded-control border px-2.5 text-caption transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink ${
-                    checked ? "border-ink bg-bg font-bold text-ink" : "border-line text-ink-2 hover:border-ink-2"
+                    checked ? "border-ink bg-accent-yellow font-bold text-on-accent" : "border-line text-ink-2 hover:border-ink"
                   }`}
                 >
                   <input
@@ -96,7 +96,7 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
                     onChange={() => setTransport(value)}
                     className="sr-only"
                   />
-                  <Icon aria-hidden strokeWidth={1.8} className="size-4" />
+                  <Icon aria-hidden strokeWidth={1.75} className="size-4" />
                   {TRANSPORT_NAMES[value]}
                 </label>
               );
@@ -111,7 +111,7 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
         onClick={() => place && onAdd(place, Math.min(day, dayCount + 1), transport)}
         className={`${buttonPrimary} mt-4 w-full sm:w-auto`}
       >
-        <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+        <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
         Ajouter au voyage
       </button>
     </section>
@@ -162,7 +162,7 @@ function PlaceSearch({ id, onChoose }: { id: string; onChoose: (place: Place) =>
       </label>
       <Search
         aria-hidden
-        strokeWidth={1.8}
+        strokeWidth={1.75}
         className="pointer-events-none absolute top-1/2 left-3 size-[18px] -translate-y-1/2 text-muted"
       />
       <input
@@ -191,13 +191,13 @@ function PlaceSearch({ id, onChoose }: { id: string; onChoose: (place: Place) =>
             setQuery("");
           }
         }}
-        className="h-11 w-full rounded-control border border-line-strong bg-surface-raised pr-3 pl-10 text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink [&::-webkit-search-cancel-button]:hidden"
+        className="h-11 w-full rounded-control border border-line-strong bg-surface pr-3 pl-10 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink [&::-webkit-search-cancel-button]:hidden"
       />
       {open && (
-        <div className="pop-in absolute top-full right-0 left-0 z-30 mt-2 rounded-panel border border-line bg-surface-raised p-1.5 shadow-float">
+        <div className="pop-in absolute top-full right-0 left-0 z-30 mt-2 rounded-panel border border-border bg-surface p-1.5 shadow-float">
           {state.kind === "loading" && (
             <p role="status" className="flex items-center gap-2 px-3 py-2.5 text-caption text-ink-2">
-              <LoaderCircle aria-hidden strokeWidth={1.8} className="size-4 animate-spin motion-reduce:animate-none" />
+              <LoaderCircle aria-hidden strokeWidth={1.75} className="size-4 animate-spin motion-reduce:animate-none" />
               Recherche…
             </p>
           )}
@@ -223,10 +223,10 @@ function PlaceSearch({ id, onChoose }: { id: string; onChoose: (place: Place) =>
                   onMouseEnter={() => setActive(index)}
                   onClick={() => onChoose(place)}
                   className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-control px-3 py-2 text-ink ${
-                    index === active ? "bg-bg" : ""
+                    index === active ? "bg-surface-2" : ""
                   }`}
                 >
-                  <MapPin aria-hidden strokeWidth={1.8} className="size-4 shrink-0 text-ink-2" />
+                  <MapPin aria-hidden strokeWidth={1.75} className="size-4 shrink-0 text-ink-2" />
                   <span className="leading-tight">
                     <span className="font-semibold">{place.name}</span>
                     <span className="text-caption text-ink-2">

@@ -40,7 +40,7 @@ export function TripFormDialog({ open, heading, submitLabel, initial, onSubmit, 
         // Un clic sur le fond (hors du panneau) ferme la fenêtre.
         if (event.target === ref.current) onClose();
       }}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-panel border border-line bg-surface-raised p-0 text-ink shadow-float backdrop:bg-ink/40"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-panel border border-border bg-surface p-0 text-ink shadow-float backdrop:bg-ink/40"
     >
       {open && (
         <TripForm
@@ -84,16 +84,16 @@ function TripForm({ heading, submitLabel, initial, onSubmit, onClose }: Omit<Pro
       }}
     >
       <div className="flex items-start justify-between gap-4">
-        <h2 id="voyage-form-titre" className="text-section text-ink">
+        <h2 id="voyage-form-titre" className="font-display text-[26px] font-extrabold tracking-[-0.035em] text-ink">
           {heading}
         </h2>
         <button
           type="button"
           aria-label="Fermer"
           onClick={onClose}
-          className="-mt-2 -mr-2 flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:bg-bg hover:text-ink"
+          className="-mt-2 -mr-2 flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:bg-surface-2 hover:text-ink"
         >
-          <X aria-hidden strokeWidth={1.8} className="size-5" />
+          <X aria-hidden strokeWidth={1.75} className="size-5" />
         </button>
       </div>
 
@@ -108,7 +108,7 @@ function TripForm({ heading, submitLabel, initial, onSubmit, onClose }: Omit<Pro
         placeholder="Par exemple : Road trip en Islande"
         aria-invalid={Boolean(titleError)}
         aria-describedby={titleError ? `${id}-titre-erreur` : undefined}
-        className="mt-2 h-11 w-full rounded-control border border-line-strong bg-surface-raised px-3 text-ink placeholder:text-muted hover:border-ink-2 focus-visible:border-ink aria-invalid:border-warn-ink"
+        className="mt-2 h-11 w-full rounded-control border border-line-strong bg-surface px-3 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink aria-invalid:border-warn-ink"
       />
       {titleError && (
         <p id={`${id}-titre-erreur`} className="mt-1.5 text-caption text-warn-ink">
@@ -127,7 +127,7 @@ function TripForm({ heading, submitLabel, initial, onSubmit, onClose }: Omit<Pro
               type="date"
               value={startDate}
               onChange={(event) => setStartDate(event.target.value)}
-              className="mt-1 h-11 w-full rounded-control border border-line-strong bg-surface-raised px-3 text-body text-ink hover:border-ink-2 focus-visible:border-ink"
+              className="mt-1 h-11 w-full rounded-control border border-line-strong bg-surface px-3 text-body text-ink hover:border-ink focus-visible:border-ink"
             />
           </label>
           <label className="text-caption text-ink-2">
@@ -139,7 +139,7 @@ function TripForm({ heading, submitLabel, initial, onSubmit, onClose }: Omit<Pro
               onChange={(event) => setEndDate(event.target.value)}
               aria-invalid={Boolean(dateError)}
               aria-describedby={dateError ? `${id}-dates-erreur` : undefined}
-              className="mt-1 h-11 w-full rounded-control border border-line-strong bg-surface-raised px-3 text-body text-ink hover:border-ink-2 focus-visible:border-ink aria-invalid:border-warn-ink"
+              className="mt-1 h-11 w-full rounded-control border border-line-strong bg-surface px-3 text-body text-ink hover:border-ink focus-visible:border-ink aria-invalid:border-warn-ink"
             />
           </label>
         </div>
@@ -158,8 +158,8 @@ function TripForm({ heading, submitLabel, initial, onSubmit, onClose }: Omit<Pro
               key={value}
               className={`flex min-h-11 cursor-pointer items-center justify-center rounded-control border px-2 text-caption transition-colors duration-150 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink ${
                 status === value
-                  ? "border-ink bg-bg font-bold text-ink"
-                  : "border-line text-ink-2 hover:border-ink-2 hover:text-ink"
+                  ? "border-ink bg-accent-yellow font-bold text-on-accent"
+                  : "border-line text-ink-2 hover:border-ink hover:text-ink"
               }`}
             >
               <input

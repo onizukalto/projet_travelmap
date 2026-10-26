@@ -1,11 +1,12 @@
 "use client";
 
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import { COUNTRY_BY_KEY } from "@/data/countries";
-import { buttonPrimary, buttonSecondary } from "@/lib/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { countryAt } from "@/lib/locate";
 import { useMapStore } from "@/lib/map-store";
 import { reversePlace, type Place } from "@/lib/photon";
@@ -14,7 +15,6 @@ import {
   countByTransport,
   countryNames,
   dateRange,
-  plural,
   preparation,
   tripDays,
 } from "@/lib/trip-utils";
@@ -44,13 +44,15 @@ export function TripDetail({ id }: { id: string }) {
   if (!hydrated || (!trip && deleted)) return <TripDetailFallback />;
   if (!trip) {
     return (
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-start gap-4 px-4 py-12 md:px-6 lg:px-8">
-        <h1 className="text-[32px] leading-tight font-extrabold text-ink">Voyage introuvable</h1>
-        <p className="text-ink-2">Ce voyage n&apos;existe pas, ou il a été supprimé de ce navigateur.</p>
-        <Link href="/voyages" className={buttonSecondary}>
-          <ArrowLeft aria-hidden strokeWidth={1.8} className="size-[18px]" />
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col items-start gap-4 px-4 py-12 md:px-6 lg:px-8">
+        <h1 className="font-display text-[44px] leading-[0.95] font-extrabold tracking-[-0.05em] text-ink md:text-[64px]">
+          Voyage introuvable
+        </h1>
+        <p className="text-lg text-ink-2">Ce voyage n&apos;existe pas, ou il a été supprimé de ce navigateur.</p>
+        <ButtonLink href="/voyages" variant="secondary">
+          <ArrowLeft aria-hidden strokeWidth={1.75} className="size-[18px]" />
           Retour aux voyages
-        </Link>
+        </ButtonLink>
       </div>
     );
   }
@@ -149,7 +151,7 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
           href="/voyages"
           className="-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-control px-2 text-caption font-semibold text-ink-2 hover:text-ink"
         >
-          <ArrowLeft aria-hidden strokeWidth={1.8} className="size-4" />
+          <ArrowLeft aria-hidden strokeWidth={1.75} className="size-4" />
           Voyages
         </Link>
 
@@ -159,19 +161,19 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
               <StatusBadge status={trip.status} />
               <span className="text-caption text-ink-2">{dateRange(trip) ?? "Dates à fixer"}</span>
             </div>
-            <h1 className="mt-2 text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] break-words text-ink md:text-page-title">
+            <h1 className="mt-3 font-display text-[40px] leading-[0.95] font-extrabold tracking-[-0.05em] break-words text-ink md:text-[60px]">
               {trip.title}
             </h1>
-            {countries.length > 0 && <p className="mt-2 text-ink-2">{countries.join(", ")}</p>}
+            {countries.length > 0 && <p className="mt-3 text-lg text-ink-2">{countries.join(", ")}</p>}
           </div>
-          <button type="button" onClick={() => setEditing(true)} className={`${buttonSecondary} shrink-0`}>
-            <Pencil aria-hidden strokeWidth={1.8} className="size-4" />
+          <Button variant="secondary" onClick={() => setEditing(true)} className="shrink-0">
+            <Pencil aria-hidden strokeWidth={1.75} className="size-4" />
             Modifier
-          </button>
+          </Button>
         </div>
 
         {proposal && toMark.length > 0 && (
-          <div role="status" className="pop-in mt-5 rounded-panel bg-warn-bg p-4 text-warn-ink">
+          <div role="status" className="pop-in mt-6 rounded-panel border border-border bg-warn-bg p-4 text-warn-ink md:p-5">
             <p className="font-semibold">
               Voyage terminé.{" "}
               {toMark.length > 1
@@ -182,8 +184,8 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
               {toMark.map((k) => COUNTRY_BY_KEY.get(k)?.name).join(", ")}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
+              <Button
+                variant="primary"
                 onClick={() => {
                   toMark.forEach((k) => setStatus(k, "visited"));
                   setProposal(false);
@@ -193,10 +195,9 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
                       : "Pays marqué comme visité",
                   );
                 }}
-                className={buttonPrimary}
               >
                 {toMark.length > 1 ? "Marquer comme visités" : "Marquer comme visité"}
-              </button>
+              </Button>
               <button
                 type="button"
                 onClick={() => setProposal(false)}
@@ -208,18 +209,18 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
           </div>
         )}
 
-        <dl className="mt-6 grid grid-cols-2 gap-3 rounded-panel border border-line bg-surface p-4 sm:grid-cols-4">
-          <KeyFigure label="Durée" value={plural(dayCount, "jour", "jours")} />
+        <dl className="bento mt-7 grid-cols-2 sm:grid-cols-4">
+          <KeyFigure label="Durée" value={dayCount} unit={dayCount > 1 ? "jours" : "jour"} />
           <KeyFigure label="Étapes" value={trip.stops.length} />
           <KeyFigure label="Ferries" value={countByTransport(trip, "ferry")} />
-          <KeyFigure label="Préparation" value={prep.total ? `${Math.round(prep.ratio * 100)} %` : "–"} />
+          <KeyFigure label="Préparation" value={prep.total ? Math.round(prep.ratio * 100) : "–"} unit={prep.total ? "%" : undefined} />
         </dl>
 
         <div
           role="tablist"
           aria-label="Sections du voyage"
           onKeyDown={onTabKey}
-          className="mt-6 flex gap-1 overflow-x-auto border-b border-line"
+          className="mt-7 flex gap-1 overflow-x-auto rounded-control border border-border bg-surface p-1"
         >
           {TABS.map(({ value, label }) => {
             const selected = tab === value;
@@ -233,13 +234,19 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
                 aria-controls={`panneau-${value}`}
                 tabIndex={selected ? 0 : -1}
                 onClick={() => setTab(value)}
-                className={`-mb-px min-h-11 shrink-0 cursor-pointer border-b-[3px] px-3 transition-colors duration-150 ${
-                  selected
-                    ? "border-visited font-bold text-ink"
-                    : "border-transparent font-semibold text-ink-2 hover:text-ink"
+                className={`relative min-h-11 flex-1 shrink-0 cursor-pointer rounded-[6px] px-3 text-caption transition-colors duration-150 ${
+                  selected ? "font-bold text-on-accent" : "font-medium text-ink-2 hover:text-ink"
                 }`}
               >
-                {label}
+                {/* La pastille jaune glisse d'un onglet à l'autre. */}
+                {selected && (
+                  <motion.span
+                    layoutId="pastille-onglets-voyage"
+                    aria-hidden
+                    className="absolute inset-0 rounded-[6px] border border-ink bg-accent-yellow"
+                  />
+                )}
+                <span className="relative">{label}</span>
               </button>
             );
           })}
@@ -250,12 +257,13 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
           role="tabpanel"
           aria-labelledby={`onglet-${tab}`}
           tabIndex={0}
-          className="pt-5 focus-visible:outline-offset-4"
+          key={tab}
+          className="pop-in pt-5 focus-visible:outline-offset-4"
         >
           {tab === "itinerary" && (
             <div className="flex flex-col gap-5">
               {trip.stops.length === 0 ? (
-                <p className="text-ink-2">
+                <p className="rounded-panel border border-dashed border-line-strong p-5 text-ink-2">
                   Pas encore d&apos;étape. Cherche un premier lieu ci-dessous, ou clique sur la carte.
                 </p>
               ) : (
@@ -299,13 +307,13 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
           {tab === "notes" && <NotesTab trip={trip} />}
         </div>
 
-        <div className="mt-12 border-t border-line pt-6">
+        <div className="mt-12 border-t border-border pt-6">
           <button
             type="button"
             onClick={remove}
             className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control px-3 font-semibold text-warn-ink hover:bg-warn-bg"
           >
-            <Trash2 aria-hidden strokeWidth={1.8} className="size-[18px]" />
+            <Trash2 aria-hidden strokeWidth={1.75} className="size-[18px]" />
             Supprimer le voyage
           </button>
         </div>
@@ -337,12 +345,15 @@ function TripView({ trip, onDeleted }: { trip: Trip; onDeleted: () => void }) {
   );
 }
 
-function KeyFigure({ label, value }: { label: string; value: string | number }) {
+function KeyFigure({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-small text-muted">{label}</dt>
-      <dd className="truncate text-[20px] leading-tight font-extrabold text-ink tabular-nums md:text-[22px]">
-        {value}
+    <div className="min-w-0 p-4 md:p-5">
+      <dt className="text-caption font-medium text-muted">{label}</dt>
+      <dd className="mt-1.5 flex items-baseline gap-1.5 font-display text-ink">
+        <span className="text-[36px] leading-none font-extrabold tracking-[-0.045em] tabular-nums md:text-[44px]">
+          {value}
+        </span>
+        {unit && <span className="text-[15px] font-semibold text-muted">{unit}</span>}
       </dd>
     </div>
   );
@@ -352,11 +363,11 @@ export function TripDetailFallback() {
   return (
     <div aria-hidden className="mx-auto grid w-full max-w-[1600px] flex-1 gap-6 p-4 md:p-6 lg:grid-cols-2 lg:p-8">
       <div className="flex flex-col gap-4">
-        <div className="h-10 w-2/3 animate-pulse rounded-control bg-surface motion-reduce:animate-none" />
-        <div className="h-20 animate-pulse rounded-panel bg-surface motion-reduce:animate-none" />
-        <div className="h-64 animate-pulse rounded-panel bg-surface motion-reduce:animate-none" />
+        <div className="h-10 w-2/3 animate-pulse rounded-control bg-surface-2 motion-reduce:animate-none" />
+        <div className="h-20 animate-pulse rounded-panel bg-surface-2 motion-reduce:animate-none" />
+        <div className="h-64 animate-pulse rounded-panel bg-surface-2 motion-reduce:animate-none" />
       </div>
-      <div className="h-[46svh] animate-pulse rounded-panel bg-surface motion-reduce:animate-none lg:h-[70svh]" />
+      <div className="h-[46svh] animate-pulse rounded-panel bg-surface-2 motion-reduce:animate-none lg:h-[70svh]" />
     </div>
   );
 }

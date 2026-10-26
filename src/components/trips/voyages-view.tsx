@@ -1,12 +1,15 @@
 "use client";
 
 import { Compass, Plus } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { RouteSketch } from "@/components/route-sketch";
-import { buttonPrimary, buttonSecondary } from "@/lib/button";
-import { parseDate, plural, tripDays } from "@/lib/trip-utils";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { Badge } from "@/components/ui/badge";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { Segmented } from "@/components/ui/segmented";
+import { Tile } from "@/components/ui/tile";
+import { km, parseDate, plural, tripDays, tripKm } from "@/lib/trip-utils";
 import { useTripsHydrated, useTripsStore, type Trip } from "@/lib/trips-store";
 import { RouteLegend } from "./route-lines";
 import { NextTripCard, TripCard } from "./trip-cards";
@@ -22,7 +25,9 @@ const FILTERS: { value: Filter; label: string }[] = [
 ];
 
 const time = (date?: string) => (date ? +parseDate(date) : null);
+const kilometres = (value: number) => km.format(Math.round(value));
 
+/** La page Voyages : stats en bento, filtres, prochain voyage, idées et souvenirs. */
 export function VoyagesView() {
   const trips = useTripsStore((state) => state.trips);
   const createTrip = useTripsStore((state) => state.createTrip);
@@ -32,8 +37,7 @@ export function VoyagesView() {
   const [creating, setCreating] = useState(false);
 
   const { upcoming, done, ideas } = useMemo(() => {
-    const byStart = (a: Trip, b: Trip) =>
-      (time(a.startDate) ?? Infinity) - (time(b.startDate) ?? Infinity);
+    const byStart = (a: Trip, b: Trip) => (time(a.startDate) ?? Infinity) - (time(b.startDate) ?? Infinity);
     const byRecent = (a: Trip, b: Trip) =>
       (time(b.endDate ?? b.startDate) ?? 0) - (time(a.endDate ?? a.startDate) ?? 0);
     return {
@@ -43,6 +47,16 @@ export function VoyagesView() {
     };
   }, [trips]);
 
+  // Les stats des voyages terminés, calculées sur les données réelles.
+  const stats = useMemo(
+    () => ({
+      jours: done.reduce((sum, trip) => sum + tripDays(trip), 0),
+      km: done.reduce((sum, trip) => sum + tripKm(trip), 0),
+      pays: new Set(done.flatMap((trip) => trip.countries)).size,
+    }),
+    [done],
+  );
+
   const counts: Record<Filter, number> = {
     all: trips.length,
     planned: upcoming.length,
@@ -50,124 +64,99 @@ export function VoyagesView() {
     idea: ideas.length,
   };
 
-  const daysOnRoad = done.reduce((sum, trip) => sum + tripDays(trip), 0);
   const summary =
     trips.length === 0
       ? "Ton carnet est vide pour l'instant."
       : done.length === 0
         ? `${plural(upcoming.length, "voyage prévu", "voyages prévus")}, aucun terminé pour l'instant.`
-        : `${plural(done.length, "voyage terminé", "voyages terminés")}, ${plural(daysOnRoad, "jour", "jours")} sur la route.`;
+        : `${plural(done.length, "voyage terminé", "voyages terminés")}, ${plural(stats.jours, "jour", "jours")} sur la route.`;
 
   const show = (section: Filter) => filter === "all" || filter === section;
   const [next, ...laterTrips] = upcoming;
   const nothingInFilter = filter !== "all" && counts[filter] === 0;
-
   const openForm = () => setCreating(true);
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-4 py-8 md:px-6 md:py-12 lg:px-8">
-      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-8 md:px-6 md:py-12 lg:px-8">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] text-ink md:text-page-title">
+          <h1 className="font-display text-[48px] leading-[0.9] font-extrabold tracking-[-0.05em] text-ink md:text-[72px]">
             Voyages
           </h1>
-          <p className="mt-2 min-h-[1.55em] text-ink-2">{hydrated ? summary : ""}</p>
+          <p className="mt-3 min-h-[1.55em] text-lg text-ink-2">{hydrated ? summary : ""}</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link href="/planifier" className={buttonSecondary}>
-            <Compass aria-hidden strokeWidth={1.8} className="size-[18px]" />
+          <ButtonLink href="/planifier" variant="secondary">
+            <Compass aria-hidden strokeWidth={1.75} className="size-[18px]" />
             Planifier avec l&apos;assistant
-          </Link>
-          <button type="button" onClick={openForm} className={buttonPrimary}>
-            <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+          </ButtonLink>
+          <Button variant="primary" onClick={openForm}>
+            <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
             Nouveau voyage
-          </button>
+          </Button>
         </div>
       </div>
 
       {!hydrated ? (
-        <div aria-hidden className="mt-10 h-72 animate-pulse rounded-panel bg-surface motion-reduce:animate-none" />
+        <div aria-hidden className="mt-10 h-72 animate-pulse rounded-panel bg-surface-2 motion-reduce:animate-none" />
       ) : trips.length === 0 ? (
         <EmptyCarnet onCreate={openForm} />
       ) : (
         <>
-          <div role="group" aria-label="Filtrer les voyages" className="mt-8 flex flex-wrap gap-2">
-            {FILTERS.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={filter === value}
-                onClick={() => setFilter(value)}
-                className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-control border px-3.5 text-caption transition-colors duration-150 ${
-                  filter === value
-                    ? "border-ink bg-ink font-bold text-surface"
-                    : "border-line bg-surface text-ink hover:border-ink-2"
-                }`}
-              >
-                {label}
-                <span className={`tabular-nums ${filter === value ? "opacity-80" : "text-muted"}`}>
-                  {counts[value]}
-                </span>
-              </button>
-            ))}
+          {/* Les stats des voyages terminés, en bento */}
+          <div className="bento mt-8 grid-cols-2 lg:grid-cols-4">
+            <StatTile index={0} label="Voyages terminés" value={done.length} />
+            <StatTile index={1} label="Jours sur la route" value={stats.jours} />
+            <StatTile index={2} label="Kilomètres parcourus" value={stats.km} format={kilometres} suffixe="km" />
+            <StatTile index={3} label="Pays traversés" value={stats.pays} />
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <Segmented
+              ariaLabel="Filtrer les voyages"
+              value={filter}
+              onChange={setFilter}
+              className="w-full sm:w-auto"
+              options={FILTERS.map(({ value, label }) => ({
+                value,
+                label: `${label} ${counts[value]}`,
+              }))}
+            />
           </div>
 
           {nothingInFilter && (
-            <div className="mt-8 flex flex-col items-start gap-4 rounded-panel border-2 border-dashed border-line-strong p-6 md:p-8">
+            <div className="mt-8 flex flex-col items-start gap-4 rounded-panel border border-dashed border-line-strong p-6 md:p-8">
               <p className="text-ink">
                 {filter === "planned" && "Aucun voyage prévu. Fixe des dates à une idée ou crée un nouveau voyage."}
                 {filter === "done" && "Aucun voyage terminé pour l'instant. Tes souvenirs apparaîtront ici."}
                 {filter === "idea" && "Aucune idée en réserve. Note une envie de voyage, même sans dates."}
               </p>
-              <button type="button" onClick={openForm} className={buttonSecondary}>
-                <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+              <Button variant="secondary" onClick={openForm}>
+                <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
                 Nouveau voyage
-              </button>
+              </Button>
             </div>
           )}
 
           {show("planned") && next && (
-            <section aria-labelledby="a-venir" className="mt-10">
-              <h2 id="a-venir" className="text-section text-ink md:text-[24px]">
-                À venir
-              </h2>
-              <div className="mt-4">
+            <Section id="a-venir" titre="À venir" compte={upcoming.length}>
+              <div className="scroll-reveal">
                 <NextTripCard trip={next} />
               </div>
-              {laterTrips.length > 0 && (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {laterTrips.map((trip) => (
-                    <TripCard key={trip.id} trip={trip} />
-                  ))}
-                </div>
-              )}
-            </section>
+              {laterTrips.length > 0 && <Grille trips={laterTrips} />}
+            </Section>
           )}
 
           {show("idea") && ideas.length > 0 && (
-            <section aria-labelledby="idees" className="mt-12">
-              <h2 id="idees" className="text-section text-ink md:text-[24px]">
-                Idées
-              </h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {ideas.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
-                ))}
-              </div>
-            </section>
+            <Section id="idees" titre="Idées" compte={ideas.length}>
+              <Grille trips={ideas} />
+            </Section>
           )}
 
           {show("done") && done.length > 0 && (
-            <section aria-labelledby="souvenirs" className="mt-12">
-              <h2 id="souvenirs" className="text-section text-ink md:text-[24px]">
-                Souvenirs
-              </h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {done.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
-                ))}
-              </div>
-            </section>
+            <Section id="souvenirs" titre="Souvenirs" compte={done.length}>
+              <Grille trips={done} />
+            </Section>
           )}
         </>
       )}
@@ -187,28 +176,73 @@ export function VoyagesView() {
   );
 }
 
+function StatTile({
+  index,
+  label,
+  value,
+  format,
+  suffixe,
+}: {
+  index: number;
+  label: string;
+  value: number;
+  format?: (value: number) => string;
+  suffixe?: string;
+}) {
+  return (
+    <Tile index={index} label={label}>
+      <p className="font-display leading-none font-extrabold tracking-[-0.05em] text-ink">
+        <AnimatedNumber value={value} format={format} className="text-[44px] md:text-[56px]" />
+        {suffixe && <span className="ml-1.5 text-[20px] text-muted">{suffixe}</span>}
+      </p>
+    </Tile>
+  );
+}
+
+function Section({ id, titre, compte, children }: { id: string; titre: string; compte: number; children: ReactNode }) {
+  return (
+    <section aria-labelledby={id} className="mt-14">
+      <h2 id={id} className="scroll-reveal flex items-center gap-3 font-display text-[28px] font-extrabold tracking-[-0.035em] text-ink md:text-[36px]">
+        {titre}
+        <Badge tone="neutral">{compte}</Badge>
+      </h2>
+      <div className="mt-5 flex flex-col gap-4">{children}</div>
+    </section>
+  );
+}
+
+function Grille({ trips }: { trips: Trip[] }) {
+  return (
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {trips.map((trip) => (
+        // L'apparition au défilement est sur l'élément de liste, le survol sur la fiche : jamais les deux au même endroit.
+        <li key={trip.id} className="scroll-reveal flex">
+          <TripCard trip={trip} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function EmptyCarnet({ onCreate }: { onCreate: () => void }) {
   return (
-    <section
-      aria-labelledby="carnet-vide"
-      className="mt-8 grid overflow-hidden rounded-panel border-2 border-dashed border-line-strong bg-surface md:mt-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]"
-    >
-      <div className="border-b-2 border-dashed border-line-strong md:border-r-2 md:border-b-0">
+    <section aria-labelledby="carnet-vide" className="bento mt-8 md:mt-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <div className="bg-ocean">
         <RouteSketch className="block h-full w-full" />
       </div>
       <div className="flex flex-col justify-center p-6 md:p-10">
-        <h2 id="carnet-vide" className="text-section text-ink md:text-[24px]">
+        <h2 id="carnet-vide" className="font-display text-[28px] leading-tight font-extrabold tracking-[-0.035em] text-ink md:text-[36px]">
           Ton carnet de voyages est vide
         </h2>
-        <p className="mt-3 max-w-[46ch] text-ink">
-          Note un voyage passé ou prépare le prochain. Ajoute ses étapes jour par jour : le tracé se
-          dessine sur la carte, et les pays traversés se colorient tout seuls.
+        <p className="mt-3 max-w-[46ch] text-ink-2">
+          Note un voyage passé ou prépare le prochain. Ajoute ses étapes jour par jour : le tracé se dessine sur la carte,
+          et les pays traversés se colorient tout seuls.
         </p>
         <RouteLegend className="mt-6" />
-        <button type="button" onClick={onCreate} className={`${buttonPrimary} mt-7 self-start`}>
-          <Plus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+        <Button variant="primary" onClick={onCreate} className="mt-7 self-start">
+          <Plus aria-hidden strokeWidth={1.75} className="size-[18px]" />
           Créer mon premier voyage
-        </button>
+        </Button>
       </div>
     </section>
   );

@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Overpass } from "next/font/google";
 import { MapPatterns } from "@/components/map-patterns";
-import { MobileTabBar } from "@/components/mobile-tab-bar";
-import { SiteHeader } from "@/components/site-header";
 import { StoreHydration } from "@/components/store-hydration";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/toaster";
@@ -41,20 +39,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider>
           <StoreHydration />
           <MapPatterns />
-          <a
-            href="#contenu"
-            className="sr-only z-50 rounded-control bg-ink px-4 py-3 font-semibold text-surface focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-          >
-            Aller au contenu
-          </a>
-          <SiteHeader />
-          <main
-            id="contenu"
-            className="flex flex-1 flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0"
-          >
-            {children}
-          </main>
-          <MobileTabBar />
+          {/* En-tête et barre d'onglets : voir (site)/layout.tsx (absents de /connexion) */}
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

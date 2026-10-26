@@ -1,6 +1,6 @@
 "use client";
 
-import { BookmarkPlus, ChevronDown, ExternalLink, Gem, Star } from "lucide-react";
+import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star } from "lucide-react";
 import { useState } from "react";
 import { buttonPrimary } from "@/lib/button";
 import { CrowdGauge } from "./crowd-gauge";
@@ -64,7 +64,11 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
                     Jour {jour.jour}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-ink-2">{jour.titre}</span>
-                  <span className="text-small text-muted">{jour.etapes.length}</span>
+                  {jour.etapes.length > 0 ? (
+                    <span className="text-small text-muted">{jour.etapes.length}</span>
+                  ) : (
+                    jour.trajet && <Car aria-label="Jour de route" strokeWidth={1.8} className="size-4 shrink-0 text-muted" />
+                  )}
                   <ChevronDown
                     aria-hidden
                     strokeWidth={1.8}
@@ -74,7 +78,17 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
               </h4>
               {expanded && (
                 <ol id={panelId} className="flex flex-col gap-3 px-4 pb-4 md:px-5">
-                  {jour.etapes.length === 0 && (
+                  {/* Jour de route : le trajet, sous le titre (seul s'il n'y a pas d'étape) */}
+                  {jour.trajet && (
+                    <li className="flex items-center gap-2 text-caption text-ink-2">
+                      <Car aria-hidden strokeWidth={1.8} className="size-4 shrink-0" />
+                      <span>
+                        <span className="sr-only">Trajet : </span>
+                        {jour.trajet}
+                      </span>
+                    </li>
+                  )}
+                  {jour.etapes.length === 0 && !jour.trajet && (
                     <li className="text-caption text-ink-2">Aucune étape vérifiée pour ce jour.</li>
                   )}
                   {jour.etapes.map((etape, index) => (

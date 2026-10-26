@@ -89,7 +89,8 @@ export function TripMap({
     const path = pathFor(projection);
     const features = detailed ? detailed.all : WORLD.features.map((f) => f.feature);
     return features
-      .map((feature, index) => ({ key: `${feature.id ?? index}`, d: path(feature) }))
+      // Les frontières 50m contiennent plusieurs contours avec le même code : on ajoute la position.
+      .map((feature, index) => ({ key: `${feature.id ?? "x"}-${index}`, d: path(feature) }))
       .filter((f): f is { key: string; d: string } => Boolean(f.d));
   }, [projection, detailed]);
 

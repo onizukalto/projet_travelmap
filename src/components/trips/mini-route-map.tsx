@@ -41,7 +41,8 @@ export const MiniRouteMap = memo(function MiniRouteMap({
     const path = pathFor(projection);
     const features = world50 ? world50.all : WORLD.features.map((f) => f.feature);
     const land = features
-      .map((feature, index) => ({ key: `${feature.id ?? index}`, d: path(feature) }))
+      // Les frontières 50m contiennent plusieurs contours avec le même code : on ajoute la position.
+      .map((feature, index) => ({ key: `${feature.id ?? "x"}-${index}`, d: path(feature) }))
       .filter((f): f is { key: string; d: string } => Boolean(f.d));
     const points: RoutePoint[] = trip.stops.flatMap((s) => {
       const at = projectStop(projection, s.lon, s.lat);

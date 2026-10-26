@@ -7,7 +7,8 @@ export type EtapeRendue = LieuVerifie & { description: string; pepite: boolean }
 /** Ce que renvoie l'outil proposerItineraire. */
 export type ItineraireRendu = {
   titre: string;
-  jours: { jour: number; titre: string; etapes: EtapeRendue[] }[];
+  /** trajet : pour un jour de route, ex. « Tbilissi → Stepantsminda, environ 3 h ». */
+  jours: { jour: number; titre: string; trajet?: string; etapes: EtapeRendue[] }[];
   verification: string;
 };
 

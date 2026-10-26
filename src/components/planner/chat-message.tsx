@@ -23,10 +23,12 @@ type Props = {
   selectedDay: number | null;
   onSelectDay: (day: number) => void;
   onSave: () => void | Promise<void>;
+  /** Vrai pour le message que l'agent est en train d'écrire. */
+  streaming?: boolean;
 };
 
 /** Un message de la conversation : celui de l'utilisateur, ou les étapes et la réponse de l'agent. */
-export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectDay, onSave }: Props) {
+export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectDay, onSave, streaming = false }: Props) {
   if (message.role === "user") {
     const text = message.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
     return (
@@ -51,7 +53,8 @@ export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectD
         if (!isToolPart(part)) return null;
 
         const done = part.state === "output-available";
-        const failed = part.state === "output-error";
+        // Une étape sans résultat alors que la réponse est finie : elle a été interrompue.
+        const failed = part.state === "output-error" || (!done && !streaming);
         const input = (part.input ?? {}) as Record<string, unknown>;
         const output = done ? (part.output as unknown) : undefined;
 
@@ -112,7 +115,7 @@ function ToolLine({
       <Icon aria-hidden strokeWidth={1.8} className="size-4 shrink-0" />
       <span className="min-w-0 truncate">{children}</span>
       {failed ? (
-        <TriangleAlert aria-label="échec" strokeWidth={1.8} className="size-3.5 shrink-0 text-warn-ink" />
+        <TriangleAlert aria-label="interrompu" strokeWidth={1.8} className="size-3.5 shrink-0 text-warn-ink" />
       ) : done ? (
         <Check aria-label="terminé" strokeWidth={2} className="size-3.5 shrink-0 text-pepite" />
       ) : (

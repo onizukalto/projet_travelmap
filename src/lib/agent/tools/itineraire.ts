@@ -16,11 +16,12 @@ export function creerProposerItineraire(registre: Registre) {
       jours: z.array(z.object({
         jour: z.number().int().min(1),
         titre: z.string().describe("Ex. « Stepantsminda et la vallée de Truso »"),
+        trajet: z.string().optional().describe("Pour un jour de route : le trajet, ex. « Tbilissi → Stepantsminda, environ 3 h »"),
         etapes: z.array(z.object({
           lieuId: z.string().describe("L'id exact d'un lieu renvoyé par rechercherLieux"),
           description: z.string().describe("Une ou deux phrases : quoi y faire, quand y aller"),
           pepite: z.boolean().describe("true si c'est une alternative moins fréquentée à un lieu connu"),
-        })).min(1),
+        })).describe("Les lieux visités ce jour-là. Peut être vide pour un jour de route : n'invente pas d'étape pour remplir"),
       })).min(1),
     }),
 
@@ -31,6 +32,7 @@ export function creerProposerItineraire(registre: Registre) {
       const joursVerifies = jours.map((j) => ({
         jour: j.jour,
         titre: j.titre,
+        trajet: j.trajet,
         etapes: j.etapes.flatMap((e) => {
           const lieu = registre.get(e.lieuId);
           if (!lieu) {
@@ -38,7 +40,9 @@ export function creerProposerItineraire(registre: Registre) {
             return [];
           }
           // Les faits viennent de Google ; seule la description vient du modèle
-          return [{ ...lieu, description: e.description, pepite: e.pepite }];
+          // Une pépite, c'est un critère chiffré, vérifié par le code : très bien noté ET peu d'avis
+          const pepite = e.pepite && lieu.note !== null && lieu.note >= 4.5 && lieu.nombreAvis < 500;
+          return [{ ...lieu, description: e.description, pepite }];
         }),
       }));
 

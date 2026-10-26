@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Car, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import { MiniRouteMap } from "@/components/trips/mini-route-map";
 import { TripMap } from "@/components/trips/trip-map";
@@ -19,6 +19,12 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
   const index = Math.max(0, days.indexOf(day));
   const current = itineraire.jours[index];
   const stops = useMemo(() => stopsDuJour(itineraire, day), [itineraire, day]);
+  // Jour de route sans étape : on cadre sur la destination (le jour suivant), en marqueurs estompés.
+  const destination = useMemo(() => {
+    if (stops.length > 0) return [];
+    const suivants = itineraire.jours.filter((j) => j.jour > day).map((j) => stopsDuJour(itineraire, j.jour));
+    return suivants.find((s) => s.length > 0) ?? [];
+  }, [itineraire, day, stops]);
   const pepites = useMemo(
     () => new Set(current?.etapes.filter((e) => e.pepite).map((e) => `${day}-${e.id}`) ?? []),
     [current, day],
@@ -44,8 +50,8 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
   return (
     <div className="relative h-full min-h-0">
       <TripMap
-        stops={stops}
-        selectedDay={null}
+        stops={stops.length > 0 ? stops : destination}
+        selectedDay={stops.length > 0 ? null : day}
         onSelectDay={() => {}}
         pepiteIds={pepites}
         minSpan={0.25}
@@ -79,6 +85,12 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
             Jour {day} sur {days.length}
           </span>
           {current && <span className="block max-w-56 truncate text-small text-ink-2">{current.titre}</span>}
+          {current?.trajet && (
+            <span className="flex max-w-64 items-start justify-center gap-1 text-small text-ink-2">
+              <Car aria-hidden strokeWidth={1.8} className="mt-0.5 size-3.5 shrink-0" />
+              {current.trajet}
+            </span>
+          )}
         </p>
         <button
           type="button"

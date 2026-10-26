@@ -12,12 +12,16 @@ function prefill(pays: string | string[] | undefined) {
   return country ? `Je veux partir ${country.prep} ${country.name}` : "";
 }
 
-// L'adresse (?pays=…) n'est connue qu'à la visite : la page s'affiche dans un Suspense.
+// L'adresse (?c=… pour rouvrir une conversation, ?pays=…) n'est connue qu'à la visite :
+// la page s'affiche dans un Suspense.
 export default function PlanifierPage({ searchParams }: PageProps<"/planifier">) {
   return (
     <Suspense fallback={<Planner />}>
       {searchParams.then((params) => (
-        <Planner initialText={prefill(params.pays)} />
+        <Planner
+          initialConversation={typeof params.c === "string" ? params.c : undefined}
+          initialText={prefill(params.pays)}
+        />
       ))}
     </Suspense>
   );

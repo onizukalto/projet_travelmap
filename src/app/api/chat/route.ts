@@ -8,6 +8,7 @@ import { creerProposerItineraire } from "@/lib/agent/tools/itineraire";
 import { repondre } from "@/lib/agent/tools/repondre";
 import type { Registre } from "@/lib/agent/lieux-verifies";
 import { limiteVisiteur, limiteGlobale, identifiantVisiteur } from "@/lib/agent/limites";
+import { compacterHistorique } from "@/lib/agent/historique";
 
 // Durée maximale d'une requête sur Vercel (en secondes) : l'agent en a besoin d'environ 20
 export const maxDuration = 60;
@@ -31,10 +32,14 @@ export async function POST(req: Request) {
 
   // Sécurité : on ne garde que user et assistant, le rôle system vient uniquement du serveur.
   // Et seulement les 20 derniers messages, pour limiter le coût.
-  const historique = messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-20);
-
   // Un registre neuf pour chaque requête : la liste des lieux réellement trouvés
   const registre: Registre = new Map();
+
+  // On filtre les rôles, on garde les 20 derniers messages, puis on résume (et on recharge le registre)
+  const historique = compacterHistorique(
+    messages.filter((m) => m.role === "user" || m.role === "assistant").slice(-20),
+    registre,
+  );
 
   const result = streamText({
     model: modele,

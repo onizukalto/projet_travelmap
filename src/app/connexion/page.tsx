@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BlankAtlas } from "@/components/blank-atlas";
 import { ConnexionForm } from "@/components/connexion-form";
+import { APP_HOME } from "@/lib/nav";
 
 export const metadata: Metadata = { title: "Connexion" };
 
 /** N'accepte qu'une page de ce site comme destination après la connexion. */
 function destination(suite: string | string[] | undefined) {
-  if (typeof suite !== "string" || !suite.startsWith("/") || suite.startsWith("//")) return "/";
-  if (suite.startsWith("/connexion") || suite.startsWith("/api/")) return "/";
+  if (typeof suite !== "string" || !suite.startsWith("/") || suite.startsWith("//")) return APP_HOME;
+  if (suite === "/" || suite.startsWith("/connexion") || suite.startsWith("/api/")) return APP_HOME;
   return suite;
 }
 
@@ -41,7 +42,7 @@ export default function ConnexionPage({ searchParams }: Props) {
             Ce site est réservé à quelques personnes pour l&apos;instant. Entre le mot de passe pour continuer.
           </p>
           {/* La page à rouvrir après connexion (?suite=…) n'est connue qu'à la visite. */}
-          <Suspense fallback={<ConnexionForm suite="/" />}>
+          <Suspense fallback={<ConnexionForm suite={APP_HOME} />}>
             {searchParams.then((params) => (
               <ConnexionForm suite={destination(params.suite)} />
             ))}

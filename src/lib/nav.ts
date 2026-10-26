@@ -8,13 +8,15 @@ export type NavItem = {
 
 /** Les trois sections du site, partagées par l'en-tête et la barre d'onglets mobile. */
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Ma carte", icon: Map },
+  { href: "/carte", label: "Ma carte", icon: Map },
   { href: "/voyages", label: "Voyages", icon: Route },
   { href: "/planifier", label: "Planifier", icon: Compass },
 ];
 
+/** Page d'arrivée de l'application (après connexion, logo de l'en-tête). « / » est l'accueil public. */
+export const APP_HOME = "/carte";
+
 /** Un lien est actif sur sa page et sur ses sous-pages (ex. /voyages/123). */
 export function isActive(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } fro
 import { StatusSwatch } from "@/components/map-patterns";
 import { CONTINENTS, searchCountries, type Country } from "@/data/countries";
 import { useMapFocus, useMapStore } from "@/lib/map-store";
+import { APP_HOME } from "@/lib/nav";
 import { useDismiss } from "@/lib/use-dismiss";
 
 /**
@@ -83,7 +84,7 @@ function CountrySearch({
     setQuery("");
     setOpen(false);
     onDone?.();
-    if (window.location.pathname !== "/") router.push("/");
+    if (window.location.pathname !== APP_HOME) router.push(APP_HOME);
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

@@ -29,12 +29,12 @@ export const viewport: Viewport = {
 };
 
 /**
- * Préchargement : décide AVANT l'affichage s'il doit jouer (première page de la session),
- * pour éviter tout clignotement. Il ne joue jamais sur /connexion, ni si l'utilisateur
- * préfère réduire les animations.
+ * Préchargement de l'application : décide AVANT l'affichage s'il doit jouer (première page
+ * de la session), pour éviter tout clignotement. Il ne joue jamais sur l'accueil « / »
+ * (qui a sa propre entrée animée), ni sur /connexion, ni si l'on préfère réduire les animations.
  */
 const INTRO_SCRIPT = `(function(){try{var d=document.documentElement;
-if(location.pathname.indexOf('/connexion')===0)return;
+var p=location.pathname;if(p==='/'||p.indexOf('/connexion')===0)return;
 if(sessionStorage.getItem('tm-intro')){d.dataset.intro='done';return}
 sessionStorage.setItem('tm-intro','1');
 d.dataset.intro=matchMedia('(prefers-reduced-motion: reduce)').matches?'done':'play';

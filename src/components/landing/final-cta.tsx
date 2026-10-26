@@ -1,12 +1,24 @@
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { ButtonLink } from "@/components/ui/button";
-import { APP_HOME } from "@/lib/nav";
+import { APP_HOME, NAV_ITEMS } from "@/lib/nav";
 
-/** L'appel final, puis le pied de page : le nom revient en très grand. */
-export function FinalCta() {
+/**
+ * L'année du « © ». La page est générée à l'avance : une date ne peut pas y être calculée
+ * directement, on met donc la valeur en cache (elle est recalculée à chaque déploiement).
+ */
+async function anneeEnCours() {
+  "use cache";
+  return new Date().getFullYear();
+}
+
+/** L'appel final, puis un pied de page sobre. */
+export async function FinalCta() {
+  const annee = await anneeEnCours();
   return (
     <>
-      <section aria-labelledby="titre-final" className="mx-auto max-w-[1600px] px-4 py-24 md:px-6 md:py-36 lg:px-8">
+      <section aria-labelledby="titre-final" className="mx-auto max-w-[1600px] px-4 pt-24 pb-20 md:px-6 md:pt-36 md:pb-28 lg:px-8">
         <div className="scroll-reveal grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <h2
@@ -28,19 +40,25 @@ export function FinalCta() {
       </section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-[1600px] overflow-hidden px-4 pt-10 md:px-6 lg:px-8">
-          <p
-            aria-hidden
-            className="flex items-center gap-[0.12em] pb-[0.16em] font-display text-[19vw] leading-[0.9] font-extrabold tracking-[-0.06em] text-ink lg:text-[17vw] 2xl:text-[280px]"
-          >
-            <span className="inline-block size-[0.42em] shrink-0 rounded-[0.08em] border-[0.035em] border-ink bg-accent-yellow" />
-            TravelMap
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line py-5 text-caption text-muted">
-            <p>Une carte du monde, un carnet de voyages et un planificateur qui cherche le calme.</p>
-            <a href="#titre-accueil" className="inline-flex min-h-11 items-center font-semibold text-ink hover:underline">
-              Revenir en haut
-            </a>
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6 lg:px-8">
+          <Logo href="/" />
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-caption">
+            <nav aria-label="L'application">
+              <ul className="flex flex-wrap items-center">
+                {NAV_ITEMS.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      prefetch={false}
+                      className="inline-flex min-h-11 items-center rounded-control px-2.5 font-medium text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <p className="px-2.5 text-small text-muted">© {annee} TravelMap</p>
           </div>
         </div>
       </footer>

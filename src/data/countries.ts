@@ -51,7 +51,7 @@ const ROWS = `
 398|KZ|Kazakhstan|au|AS|1
 860|UZ|Ouzbékistan|en|AS|1
 598|PG|Papouasie-Nouvelle-Guinée|en|OC|1
-360|ID|Indonésie|en|AS|1|||Bali
+360|ID|Indonésie|en|AS|1||Bali
 032|AR|Argentine|en|SA|1
 152|CL|Chili|au|SA|1
 180|CD|République démocratique du Congo|en|AF|1||RDC;Congo-Kinshasa
@@ -256,6 +256,14 @@ export const UNCODED_FEATURES: Record<string, string> = {
   Somaliland: "x-somaliland",
 };
 
+/** « lon,lat » → [lon, lat], ou null si la valeur n'est pas une paire de nombres valides. */
+function parsePoint(value: string | undefined): [number, number] | null {
+  if (!value) return null;
+  const numbers = value.split(",").map(Number);
+  if (numbers.length !== 2 || !numbers.every(Number.isFinite)) return null;
+  return [numbers[0], numbers[1]];
+}
+
 export const COUNTRIES: Country[] = ROWS.trim()
   .split("\n")
   .map((line) => {
@@ -270,7 +278,7 @@ export const COUNTRIES: Country[] = ROWS.trim()
       un: un === "1",
       parent: parent || null,
       aliases: aliases ? aliases.split(";") : [],
-      point: point ? (point.split(",").map(Number) as [number, number]) : null,
+      point: parsePoint(point),
     };
   });
 

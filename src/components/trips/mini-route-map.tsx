@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useMemo, useState } from "react";
-import { fitProjection, pathFor } from "@/lib/route-geometry";
+import { fitProjection, pathFor, projectStop } from "@/lib/route-geometry";
 import type { Trip } from "@/lib/trips-store";
 import { WORLD } from "@/lib/world";
 import { loadWorld50m, type RegionalWorld } from "@/lib/world-50m";
@@ -43,9 +43,9 @@ export const MiniRouteMap = memo(function MiniRouteMap({
     const land = features
       .map((feature, index) => ({ key: `${feature.id ?? index}`, d: path(feature) }))
       .filter((f): f is { key: string; d: string } => Boolean(f.d));
-    const points: RoutePoint[] = trip.stops.map((s) => {
-      const [x, y] = projection([s.lon, s.lat]) ?? [0, 0];
-      return { id: s.id, x, y, day: s.day, name: s.name, transport: s.transport };
+    const points: RoutePoint[] = trip.stops.flatMap((s) => {
+      const at = projectStop(projection, s.lon, s.lat);
+      return at ? [{ id: s.id, x: at[0], y: at[1], day: s.day, name: s.name, transport: s.transport }] : [];
     });
     return { land, points };
   }, [trip.stops, world50]);

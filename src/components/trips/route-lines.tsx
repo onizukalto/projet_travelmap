@@ -9,6 +9,8 @@ export type RoutePoint = {
   day: number;
   name: string;
   transport: Transport;
+  /** Lieu peu fréquenté proposé par l'assistant : marqueur vert. */
+  pepite?: boolean;
 };
 
 type Props = {
@@ -17,11 +19,20 @@ type Props = {
   selectedDay?: number | null;
   radius?: number;
   numbers?: boolean;
+  /** Affiche le nom de chaque étape à côté de son marqueur. */
+  labels?: boolean;
   onMarkerSelect?: (day: number) => void;
 };
 
 /** Tracés entre les étapes et marqueurs numérotés. */
-export function RouteLines({ points, selectedDay = null, radius = 11, numbers = true, onMarkerSelect }: Props) {
+export function RouteLines({
+  points,
+  selectedDay = null,
+  radius = 11,
+  numbers = true,
+  labels = false,
+  onMarkerSelect,
+}: Props) {
   const dim = (day: number) => selectedDay !== null && day !== selectedDay;
 
   return (
@@ -71,7 +82,9 @@ export function RouteLines({ points, selectedDay = null, radius = 11, numbers = 
             <circle
               r={active ? radius + 3 : radius}
               strokeWidth={active ? 3 : 2.5}
-              className={active ? "fill-visited stroke-ink" : "fill-ink stroke-land"}
+              className={
+                active ? "fill-visited stroke-ink" : point.pepite ? "fill-pepite stroke-land" : "fill-ink stroke-land"
+              }
             />
             {numbers && (
               <text
@@ -79,9 +92,23 @@ export function RouteLines({ points, selectedDay = null, radius = 11, numbers = 
                 textAnchor="middle"
                 fontSize={radius * 1.18}
                 fontWeight={800}
-                className={`pointer-events-none ${active ? "fill-ink dark:fill-bg" : "fill-surface"}`}
+                className={`pointer-events-none ${active || point.pepite ? "fill-ink dark:fill-bg" : "fill-surface"}`}
               >
                 {index + 1}
+              </text>
+            )}
+            {labels && (
+              <text
+                x={radius + 6}
+                y={4.5}
+                fontSize={13}
+                fontWeight={700}
+                strokeWidth={4}
+                strokeLinejoin="round"
+                style={{ paintOrder: "stroke" }}
+                className="pointer-events-none fill-ink stroke-land"
+              >
+                {point.name}
               </text>
             )}
           </g>

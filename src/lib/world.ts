@@ -11,6 +11,13 @@ import { COUNTRIES, COUNTRY_BY_KEY, UNCODED_FEATURES } from "@/data/countries";
  */
 
 export const MAP_WIDTH = 1000;
+
+/**
+ * Arrondi à 2 décimales. Le serveur et le navigateur ne calculent pas toujours
+ * les sinus et arcsinus exactement pareil (écart à la 14e décimale) : arrondir
+ * garantit le même SVG des deux côtés, donc pas d'erreur d'hydratation.
+ */
+export const round2 = (value: number) => Math.round(value * 100) / 100;
 const MARGIN = 10;
 const ANTARCTICA = "010";
 
@@ -39,35 +46,41 @@ function buildWorld() {
   );
 
   const projection = geoEqualEarth().fitWidth(MAP_WIDTH, { type: "Sphere" });
-  let path = geoPath(projection);
+  let path = geoPath(projection).digits(2);
 
   // On recadre en hauteur sur les terres (sans l'Antarctique).
   const [[, top], [, bottom]] = path.bounds({ type: "FeatureCollection", features });
   const [tx, ty] = projection.translate();
   projection.translate([tx, ty - top + MARGIN]);
-  path = geoPath(projection);
+  path = geoPath(projection).digits(2);
   const height = Math.ceil(bottom - top + MARGIN * 2);
 
   const shapes: CountryShape[] = [];
   const keyed: KeyedFeature[] = [];
+  const WORLD_KEYS_WITH_SHAPE = new Set<string>();
   for (const f of features) {
     const key = (f.id as string | undefined) ?? UNCODED_FEATURES[f.properties.name];
     if (!key || !COUNTRY_BY_KEY.has(key)) continue;
     keyed.push({ key, feature: f });
+    WORLD_KEYS_WITH_SHAPE.add(key);
     shapes.push({
       key,
       d: path(f) ?? "",
-      bounds: path.bounds(f),
-      centroid: path.centroid(f),
+      bounds: path.bounds(f).map(([x, y]) => [round2(x), round2(y)]) as CountryShape["bounds"],
+      centroid: path.centroid(f).map(round2) as [number, number],
     });
   }
 
-  const points: CountryPoint[] = COUNTRIES.filter((c) => c.point).map((c) => {
-    const [x, y] = projection(c.point!) ?? [0, 0];
-    return { key: c.key, x, y };
-  });
+  // Petits États : on ignore tout point dont la projection n'est pas un nombre fini.
+  const points: CountryPoint[] = [];
+  for (const c of COUNTRIES) {
+    if (!c.point || WORLD_KEYS_WITH_SHAPE.has(c.key)) continue;
+    const projected = projection(c.point);
+    if (!projected || !projected.every(Number.isFinite)) continue;
+    points.push({ key: c.key, x: round2(projected[0]), y: round2(projected[1]) });
+  }
 
-  const label = (lon: number, lat: number) => projection([lon, lat]) ?? [0, 0];
+  const label = (lon: number, lat: number) => (projection([lon, lat]) ?? [0, 0]).map(round2) as [number, number];
 
   return {
     width: MAP_WIDTH,

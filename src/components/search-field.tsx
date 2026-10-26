@@ -42,12 +42,12 @@ export function SearchField() {
           aria-label="Rechercher un pays"
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((value) => !value)}
-          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-bg hover:text-ink"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
         >
           <Search aria-hidden strokeWidth={1.8} className="size-5" />
         </button>
         {mobileOpen && (
-          <div className="pop-in absolute inset-x-0 top-full z-40 border-b border-line bg-surface p-3 shadow-float">
+          <div className="pop-in absolute inset-x-0 top-full z-40 border-b border-border bg-bg p-3 shadow-float">
             <CountrySearch id="recherche-pays-mobile" autoFocus onDone={closeMobile} />
           </div>
         )}
@@ -151,7 +151,7 @@ function CountrySearch({
         </kbd>
       )}
       {showList && (
-        <div className="pop-in absolute top-full right-0 z-40 mt-2 w-full min-w-72 rounded-panel border border-line bg-surface-raised p-1.5 shadow-float">
+        <div className="pop-in absolute top-full right-0 z-40 mt-2 w-full min-w-72 rounded-panel border border-border bg-surface-raised p-1.5 shadow-float">
           {results.length === 0 ? (
             <p role="status" className="px-3 py-2.5 text-caption text-ink-2">
               Aucun pays ne correspond à « {query.trim()} ».
@@ -171,7 +171,7 @@ function CountrySearch({
                     onMouseEnter={() => setActive(index)}
                     onClick={() => choose(country)}
                     className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 py-2 ${
-                      index === active ? "bg-bg" : ""
+                      index === active ? "bg-surface-2" : ""
                     }`}
                   >
                     <span className="flex-1 leading-tight">

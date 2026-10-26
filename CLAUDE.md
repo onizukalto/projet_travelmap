@@ -22,17 +22,15 @@ La direction artistique ci-dessous est **validée et prioritaire**. Les skills d
 
 Pour tout travail d'interface, utilise les skills design-taste-frontend et ui-ux-pro-max pour la qualité d'exécution, sans jamais modifier la palette, la typographie ni le concept définis ici.
 
-## Direction artistique : l'atlas routier
+## Direction artistique : bento cartographique
 
-Le concept : les cartes routières et les atlas papier.
-- Les pays visités sont **surlignés au marqueur jaune**, comme sur un vieil atlas.
-- Le pays où l'on vit est un **aplat d'encre**.
-- Les envies sont **hachurées à l'encre**. C'est la convention cartographique des zones en projet.
-- Un voyage prévu donne des **hachures jaunes**.
-- La typographie s'inspire de la signalétique routière.
-- Les stats prennent la forme d'une **barre d'échelle** de carte.
-
-Le logo est le mot « Cartouche » en Overpass 800, dans un cadre `border: 3px double` couleur encre, comme le cartouche d'une carte.
+Le concept : une app de collection de pays, dans l'esprit de l'app « Been » (sans copier ses éléments), en **grille bento néo-brutaliste propre**.
+- La carte et les pays coloriés sont les héros. Tout le reste est rangé dans des **tuiles** nettes, séparées par des traits de **1 px**.
+- Fond crème en clair, presque noir en sombre. Encre franche, traits fins, coins peu arrondis.
+- Trois **accents vifs**, réservés aux zones actives ou sélectionnées (lien actif, segment choisi, statut, focus d'une action) : jaune #FFDE4D, orange #FF7A1A, bleu #2F6BFF. Jamais en décoration.
+- Statuts de la carte : **J'y vis** = encre pleine ; **Visité** = jaune ; **Envie** = hachures bleues ; **Prévu** = hachures orange.
+- Les stats sont de **gros chiffres** en Inter Tight, comme dans Been : le pourcentage du monde est le chiffre-roi.
+- Le logo : un petit carré jaune bordé d'encre, suivi du mot « TravelMap » en Inter Tight 800, interlettrage serré.
 
 ### Couleurs (variables CSS, clair et sombre)
 
@@ -40,74 +38,92 @@ Toutes les couleurs passent par ces variables. Aucune couleur n'est codée en du
 
 | Variable | Clair | Sombre | Usage |
 |---|---|---|---|
-| `--bg` | #F3F5F4 | #0F161D | fond de page |
-| `--surface` | #FCFCFA | #161F28 | panneaux, en-tête, cartes |
-| `--surface-raised` | #FFFFFF | #1C2731 | champs, boutons secondaires |
-| `--ink` | #172433 | #E6ECEF | texte principal, boutons principaux |
-| `--ink-2` | #4A5868 | #A9B6C0 | texte secondaire |
-| `--muted` | #5B6875 | #93A1AC | légendes |
-| `--line` | #D5DDE0 | #2A3743 | bordures fines |
-| `--line-strong` | #C9D3D7 | #364553 | bordures de champs |
-| `--ocean` | #D7E3E7 | #0B1218 | mers |
-| `--land` | #FCFCFA | #1E2A35 | pays sans statut |
-| `--map-border` | #A9B8BF | #3A4A57 | frontières |
-| `--graticule` | #C8D6DB | #17222B | méridiens et parallèles |
-| `--ocean-label` | #4E6470 | #7F95A3 | noms des océans (italique) |
-| `--visited` | #F2C14E | #E3B341 | pays visités (surligneur) |
-| `--visited-edge` | #D9A21B | #B8891E | contour des pastilles « visité » |
-| `--home` | #172433 | #E6ECEF | pays où l'on vit |
-| `--wish-hatch` | #172433 | #C9D3D9 | hachures « envie » |
-| `--planned-hatch` | #D9A21B | #E3B341 | hachures « prévu » |
-| `--pepite` | #2D6A4F | #6CC398 | lieux peu fréquentés |
-| `--pepite-bg` | #E2EFE7 | #17352A | fond des badges pépite |
-| `--warn-bg` | #FBEFCB | #3A2F12 | rappels, statut « prévu » |
-| `--warn-ink` | #7A5300 | #F2D27A | texte sur `--warn-bg` |
+| `--bg` | #FDFBF7 | #0E0E0E | fond de page (crème / presque noir) |
+| `--surface` | #FFFFFF | #161616 | tuiles, en-tête, panneaux |
+| `--surface-raised` | #FFFFFF | #1C1C1C | champs, menus, éléments flottants |
+| `--surface-2` | #F4F0E7 | #1F1F1F | survol, zones calmes dans une tuile |
+| `--ink` | #111111 | #F5F3EE | texte principal, boutons principaux |
+| `--ink-2` | #3A3A3A | #C8C5BD | texte secondaire |
+| `--muted` | #6A665D | #9A968D | légendes, libellés de tuile |
+| `--border` | #111111 | #2A2A2A | traits de structure : bento, contrôles |
+| `--line` | #E5E0D5 | #262626 | séparateurs discrets à l'intérieur d'une tuile |
+| `--line-strong` | #111111 | #3A3A3A | bordures de champs |
+| `--accent-yellow` | #FFDE4D | #FFDE4D | actif, sélection, « Visité » |
+| `--accent-orange` | #FF7A1A | #FF7A1A | « Prévu », alertes |
+| `--accent-blue` | #2F6BFF | #5B8CFF | « Envie », pépites |
+| `--on-accent` | #111111 | #111111 | texte posé sur un accent (toujours foncé) |
+| `--ocean` | #F1EDE4 | #121212 | mers |
+| `--land` | #DCD6C9 | #2B2B2B | pays sans statut |
+| `--map-border` | #FDFBF7 | #0E0E0E | frontières : fines, couleur du fond |
+| `--graticule` | #E8E3D8 | #1A1A1A | méridiens et parallèles |
+| `--ocean-label` | #6A665D | #8F8B82 | noms des océans |
+| `--visited` | #FFDE4D | #FFDE4D | pays visités |
+| `--visited-edge` | #C9A800 | #C9A800 | contour des pastilles « visité » |
+| `--home` | #111111 | #F5F3EE | pays où l'on vit |
+| `--wish-hatch` | #2F6BFF | #5B8CFF | hachures « envie » |
+| `--planned-hatch` | #FF7A1A | #FF7A1A | hachures « prévu » |
+| `--pepite` | #1F4FD8 | #8AAEFF | texte des lieux peu fréquentés |
+| `--pepite-bg` | #E8EEFF | #16213D | fond des badges pépite |
+| `--warn-bg` | #FFE8D6 | #2B1A0D | rappels, statut « prévu », erreurs |
+| `--warn-ink` | #8A3A00 | #FFB27A | texte sur `--warn-bg` |
 
 **Mode sombre**
 - Trois choix : clair, sombre ou automatique (suit le système). C'est le choix automatique par défaut.
 - Aucun flash au chargement.
 - Le pays « j'y vis » s'inverse et devient clair en sombre, pour rester l'élément le plus contrasté de la carte.
-
-**Surligneur de navigation**
-- Le lien actif est surligné : `box-shadow: inset 0 -8px 0 var(--visited)` en clair.
-- En sombre, il devient un trait de 3 px sous le texte. Le texte clair sur fond jaune ne serait pas lisible.
-
-**Boutons**
-- Bouton principal : fond `--ink`, texte `--surface`. Il s'inverse donc tout seul en sombre.
-- Bouton secondaire : bordure `--ink`, fond transparent.
+- Un texte posé sur un accent (jaune, orange) reste toujours `--on-accent` (foncé), même en sombre.
 
 ### Typographie
 
-- Une seule famille : **Overpass** (Google Fonts, via `next/font`), en graisses 400, 600, 700 et 800, plus l'italique 400.
+- Deux familles, via `next/font` :
+  - **Inter Tight** pour les titres et les chiffres : très gras (700 à 800), interlettrage serré ;
+  - **Inter** pour le texte : aéré, graisses 400, 500 et 600.
 - Échelle :
 
-| Style | Taille / graisse | Particularités |
+| Style | Famille, taille / graisse | Particularités |
 |---|---|---|
-| Titre de page | 40 / 800 | interlettrage -0,02em |
-| Section | 22 à 24 / 800 | |
-| Texte | 16 / 400 | interligne 1,55 |
-| Légende | 14 / 400 | |
-| Petit | 13 | |
+| Chiffre-roi (stats) | Inter Tight, 64 à 112 / 800 | interlettrage -0,05em, `tabular-nums` |
+| Titre de page | Inter Tight, 40 à 56 / 800 | interlettrage -0,04em, interligne 1 |
+| Titre de tuile ou de section | Inter Tight, 20 à 24 / 700 | interlettrage -0,02em |
+| Texte | Inter, 16 / 400 | interligne 1,55 |
+| Légende, libellé de tuile | Inter, 14 / 500 | couleur `--muted` |
+| Petit | Inter, 13 | |
 
 - Les chiffres utilisent `tabular-nums`.
-- Les noms d'océans et de mers sont en italique, avec un interlettrage de 0,08em (convention cartographique).
 - Majuscule en début de phrase uniquement. Jamais de libellés tout en majuscules.
 
 ### Règles d'interface
 
-- **Rayons** : 8 px pour les contrôles, 10 à 12 px pour les panneaux, 6 px pour les badges.
-- **Bordures et ombres** : bordures de 1 px `--line`. Ombre uniquement sur les éléments flottants (popovers, menus).
+- **Grille bento** : un conteneur au fond `--border`, avec un espacement de 1 px entre des tuiles `--surface`. Les séparations font donc toujours exactement 1 px. Coins extérieurs de 10 px, aucun arrondi à l'intérieur.
+- **Rayons** : 6 px pour les contrôles, 10 px pour les conteneurs et panneaux, 4 px pour les badges.
+- **Bordures et ombres** : bordures de 1 px. Aucune ombre au repos. Les éléments flottants (menus, panneaux) ont une ombre dure néo-brutaliste, décalée sans flou.
+- **Boutons** :
+  - principal : fond `--ink`, texte `--bg` ; au survol et au clic, il s'inverse en jaune avec texte foncé ;
+  - secondaire : bordure `--border`, fond transparent ; au survol, fond encre ;
+  - effet ressort léger (translation ou agrandissement) au survol et au clic.
+- **Navigation** : le lien actif est une pastille jaune, texte foncé.
 - **Accessibilité** :
-  - Cibles tactiles d'au moins 44 px.
-  - Focus visible : contour de 2 px `--ink`, décalé de 2 px.
-  - Contraste du texte d'au moins 4,5:1.
-  - Vrais `<button>`, `<a>`, `<label>`.
+  - cibles tactiles d'au moins 44 px ;
+  - focus visible : contour de 2 px `--ink`, décalé de 2 px ;
+  - contraste du texte d'au moins 4,5:1 ;
+  - vrais `<button>`, `<a>`, `<label>` ;
   - `aria-label` sur les boutons qui n'ont qu'une icône.
-- **Icônes** : `lucide-react`, trait de 1,8. Jamais d'emoji.
-- **Mouvement** : seulement en réponse à une action (le pays qui se remplit, le panneau qui s'ouvre). Respecter `prefers-reduced-motion`.
-- **Interdits** : dégradés décoratifs, cartes à bordure gauche colorée, libellés en majuscules au-dessus des titres.
+- **Icônes** : `lucide-react`, trait de 1,75. Jamais d'emoji.
+- **Interdits** : dégradés décoratifs, flou de verre, ombres floues au repos, accents utilisés en décoration, cartes à bordure gauche colorée, libellés en majuscules au-dessus des titres.
 - **Ton** : écrire comme on parle, avec des verbes simples. Les boutons disent ce qu'ils font (« Ajouter au voyage », pas « Valider »).
 - **États vides** : un écran vide invite à agir, par exemple « Clique sur un pays pour le colorier ».
+
+### Mouvement
+
+Avec le paquet `motion` (Framer Motion) et du CSS. On anime **uniquement `transform` et `opacity`**, à 60 images par seconde.
+- **Préchargement** : à la première page de la session, une animation d'entrée dévoile la grille en cascade. Elle dure au maximum 1,2 s, ne joue qu'une fois par session (`sessionStorage`) et se passe d'un clic.
+- **Défilement** : léger parallaxe et apparition des modules au défilement, seulement sur les pages longues (Voyages, détail d'un voyage). Jamais sur la carte ni dans le chat, qui restent directs.
+- **Micro-interactions** :
+  - boutons et icônes avec effet ressort ;
+  - tuiles qui changent d'état ou révèlent du contenu ;
+  - quand un pays reçoit un statut, la couleur se diffuse dans sa forme, et les compteurs s'animent.
+- **Transitions** entre Ma carte, Voyages et Planifier.
+- **`prefers-reduced-motion`** : toutes les animations deviennent des fondus courts ou disparaissent.
 
 ## Écrans de référence (maquettes validées)
 
@@ -115,22 +131,20 @@ Toutes les couleurs passent par ces variables. Aucune couleur n'est codée en du
 - À gauche : logo et navigation (Ma carte, Voyages, Planifier).
 - À droite : recherche de pays (⌘K), sélecteur de thème, compte.
 
-**Ma carte**
-- La carte occupe toute la largeur.
-- Les océans sont nommés en italique.
+**Ma carte** (bento)
+- Une grande tuile carte, et des tuiles de stats façon Been :
+  - le gros pourcentage du monde ;
+  - le nombre de pays « sur 193 » ;
+  - les continents « X sur 6 », avec ceux qui manquent ;
+  - le dernier voyage terminé ;
+  - les prochaines envies.
+- Une tuile de légende : quatre pastilles (J'y vis, Visité, Prévu, Envie) avec leur compteur, qui servent aussi de filtres, et le bouton « Partager ma carte ».
 - Un clic sur un pays ouvre un panneau flottant :
   - nom du pays et continent ;
   - sélecteur à trois segments : J'y vis / Visité / Envie ;
-  - meilleure saison ;
-  - voyages liés ;
+  - bouton pour retirer le statut ;
   - bouton « Planifier un voyage au [pays] ».
-- Boutons zoom + / − en bas à droite.
-- Sous la carte, une bande de légende contient :
-  - le nombre de pays, avec « sur 193 » ;
-  - une barre d'échelle à 10 segments pour le % du monde ;
-  - les continents « X sur 6 », avec ceux qui manquent ;
-  - quatre pastilles de légende qui servent aussi de filtres, avec leur compteur ;
-  - le bouton « Partager ma carte ».
+- Déplacement et zoom : molette, pincement, boutons + / − et recentrer.
 
 **Voyages**
 - Titre « Voyages » avec un résumé (« 4 voyages terminés, 44 jours sur la route »).
@@ -170,6 +184,8 @@ Toutes les couleurs passent par ces variables. Aucune couleur n'est codée en du
 
 - **Framework** : Next.js (App Router) + TypeScript + Tailwind CSS. Les couleurs sont les variables CSS ci-dessus, exposées à Tailwind.
 - **Thème** : `next-themes`, avec une classe sur `<html>`. Le choix automatique est le défaut.
+- **Polices** : Inter Tight (titres, chiffres) et Inter (texte), via `next/font`.
+- **Animations** : `motion` (Framer Motion, `import { motion } from "motion/react"`) et CSS, avec `MotionConfig reducedMotion="user"`.
 - **Cartes** : SVG dessiné avec `d3-geo` + `topojson-client` + `world-atlas`.
   - Monde : projection **Equal Earth** (`geoEqualEarth`), données 110m, sans l'Antarctique, graticule de 10°.
   - Hachures : `<pattern>` SVG qui utilisent les variables CSS.

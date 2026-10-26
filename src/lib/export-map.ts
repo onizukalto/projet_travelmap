@@ -80,20 +80,25 @@ export async function exportMapPng(svg: SVGSVGElement, caption: string) {
     const baseline = PADDING + mapHeight + BAND * 0.62;
     ctx.fillStyle = cssVar("--ink");
     ctx.textBaseline = "alphabetic";
-    ctx.font = `700 44px ${font}`;
+    // Titres en Inter Tight (police des titres du site), texte en Inter.
+    const display = cssVar("--font-inter-tight") || font;
+    ctx.font = `700 44px ${display}`;
     ctx.fillText(caption, PADDING, baseline);
 
-    // Le nom du site dans son cartouche à double trait, à droite.
-    ctx.font = `800 40px ${font}`;
+    // Le logo à droite : un carré jaune bordé d'encre, puis « TravelMap ».
+    ctx.font = `800 44px ${display}`;
     const name = "TravelMap";
     const textWidth = ctx.measureText(name).width;
-    const boxX = EXPORT_WIDTH - PADDING - textWidth - 40;
-    const boxY = baseline - 52;
-    ctx.fillText(name, boxX + 20, baseline);
+    const textX = EXPORT_WIDTH - PADDING - textWidth;
+    const square = 34;
+    const squareX = textX - square - 16;
+    const squareY = baseline - square - 2;
+    ctx.fillText(name, textX, baseline);
+    ctx.fillStyle = cssVar("--accent-yellow");
+    ctx.fillRect(squareX, squareY, square, square);
     ctx.strokeStyle = cssVar("--ink");
     ctx.lineWidth = 3;
-    ctx.strokeRect(boxX, boxY, textWidth + 40, 72);
-    ctx.strokeRect(boxX + 7, boxY + 7, textWidth + 26, 58);
+    ctx.strokeRect(squareX, squareY, square, square);
 
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) throw new Error("Export impossible");

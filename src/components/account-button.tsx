@@ -40,7 +40,7 @@ export function AccountButton() {
           if (!open) setConnecte(estConnecte());
           setOpen((value) => !value);
         }}
-        className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-bg hover:text-ink"
+        className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
       >
         <CircleUserRound aria-hidden strokeWidth={1.8} className="size-[22px]" />
       </button>
@@ -49,7 +49,7 @@ export function AccountButton() {
           id="panneau-compte"
           role="dialog"
           aria-label="Mon compte"
-          className="pop-in absolute top-full right-0 z-40 mt-2 w-72 rounded-panel border border-line bg-surface-raised p-4 shadow-float"
+          className="pop-in absolute top-full right-0 z-40 mt-2 w-72 rounded-panel border border-border bg-surface-raised p-4 shadow-float"
         >
           <p className="font-bold text-ink">Pas besoin de compte</p>
           <p className="mt-1 text-caption text-ink-2">

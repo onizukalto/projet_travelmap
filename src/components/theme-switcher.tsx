@@ -3,6 +3,7 @@
 import { Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useCallback, useRef, useState } from "react";
+import { Segmented } from "@/components/ui/segmented";
 import { useDismiss, useMounted } from "@/lib/use-dismiss";
 
 type ThemeChoice = "light" | "dark" | "system";
@@ -25,31 +26,18 @@ export function ThemeSwitcher() {
 
   return (
     <>
-      <div
-        role="radiogroup"
-        aria-label="Thème"
-        className="hidden overflow-hidden rounded-control border border-line md:flex"
-      >
-        {CHOICES.map(({ value, label, icon: Icon }) => {
-          const checked = current === value;
-          return (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={checked}
-              aria-label={label}
-              title={label}
-              onClick={() => setTheme(value)}
-              className={`flex size-11 cursor-pointer items-center justify-center transition-colors duration-150 ${
-                checked ? "bg-ink text-surface" : "text-ink-2 hover:bg-bg hover:text-ink"
-              }`}
-            >
-              <Icon aria-hidden strokeWidth={1.8} className="size-[18px]" />
-            </button>
-          );
-        })}
-      </div>
+      <Segmented
+        ariaLabel="Thème"
+        value={current}
+        onChange={setTheme}
+        className="hidden md:flex"
+        options={CHOICES.map(({ value, label, icon: Icon }) => ({
+          value,
+          label,
+          iconOnly: true,
+          icon: <Icon aria-hidden strokeWidth={1.75} className="size-[18px]" />,
+        }))}
+      />
       <ThemeMenu current={current} onChange={setTheme} />
     </>
   );
@@ -78,7 +66,7 @@ function ThemeMenu({
         aria-expanded={open}
         aria-controls="menu-theme"
         onClick={() => setOpen((value) => !value)}
-        className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-bg hover:text-ink"
+        className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
       >
         <TriggerIcon aria-hidden strokeWidth={1.8} className="size-5" />
       </button>
@@ -87,7 +75,7 @@ function ThemeMenu({
           id="menu-theme"
           role="radiogroup"
           aria-label="Thème"
-          className="pop-in absolute top-full right-0 z-40 mt-2 w-52 rounded-panel border border-line bg-surface-raised p-1.5 shadow-float"
+          className="pop-in absolute top-full right-0 z-40 mt-2 w-52 rounded-panel border border-border bg-surface-raised p-1.5 shadow-float"
         >
           {CHOICES.map(({ value, label, icon: Icon }) => {
             const checked = current === value;
@@ -101,13 +89,13 @@ function ThemeMenu({
                   onChange(value);
                   close();
                 }}
-                className={`flex h-11 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left transition-colors duration-150 hover:bg-bg ${
+                className={`flex h-11 w-full cursor-pointer items-center gap-3 rounded-control px-3 text-left transition-colors duration-150 hover:bg-surface-2 ${
                   checked ? "font-bold text-ink" : "text-ink-2"
                 }`}
               >
                 <Icon aria-hidden strokeWidth={1.8} className="size-[18px]" />
                 <span className="flex-1">{label}</span>
-                {checked && <span aria-hidden className="size-2 rounded-full bg-visited-edge" />}
+                {checked && <span aria-hidden className="size-2.5 rounded-[2px] border border-border bg-accent-yellow" />}
               </button>
             );
           })}

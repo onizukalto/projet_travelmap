@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { COUNTRY_BY_KEY } from "@/data/countries";
 import { exportMapPng } from "@/lib/export-map";
 import { computeStats } from "@/lib/map-stats";
@@ -15,12 +15,20 @@ import { plannedCountries } from "@/lib/trip-utils";
 import { useTripsStore } from "@/lib/trips-store";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { CountryPanel } from "./country-panel";
-import { MapLegend } from "./map-legend";
-import { WorldMap, type MapAnchor, type WorldMapHandle } from "./world-map";
+import {
+  ContinentsTile,
+  CountriesTile,
+  LastTripTile,
+  LegendTile,
+  WishesTile,
+  WorldShareTile,
+} from "./map-tiles";
+import { STATUS_FILL } from "./status-meta";
+import { WorldMap, type MapAnchor, type Spread, type WorldMapHandle } from "./world-map";
 
 type Selection = { key: string; anchor: MapAnchor | null };
 
-/** La page « Ma carte » : carte coloriable, panneau du pays, légende et stats. */
+/** La page « Ma carte », en bento : la carte coloriable, ses stats, la légende et le dernier voyage. */
 export function MaCarte() {
   const statuses = useMapStore((state) => state.countryStatuses);
   const setStatus = useMapStore((state) => state.setStatus);
@@ -35,11 +43,41 @@ export function MaCarte() {
   const [hidden, setHidden] = useState<ReadonlySet<DisplayStatus>>(() => new Set());
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState(false);
+  const [spread, setSpread] = useState<Spread | null>(null);
 
   const trips = useTripsStore((state) => state.trips);
   // « Prévu » : pays traversés par un voyage prévu qui n'est pas encore terminé.
   const planned = useMemo(() => plannedCountries(trips), [trips]);
   const stats = useMemo(() => computeStats(statuses, planned), [statuses, planned]);
+  const wishKeys = useMemo(
+    () => Object.entries(statuses).filter(([, s]) => s === "wish").map(([key]) => key),
+    [statuses],
+  );
+  const homeKey = Object.entries(statuses).find(([, s]) => s === "home")?.[0];
+  const homeName = homeKey ? (COUNTRY_BY_KEY.get(homeKey)?.name ?? null) : null;
+
+  // Le remplissage dure le temps de son animation, puis le pays garde sa couleur normale.
+  useEffect(() => {
+    if (!spread) return;
+    const timer = setTimeout(() => setSpread(null), 700);
+    return () => clearTimeout(timer);
+  }, [spread]);
+
+  // Statut affiché : « Prévu » recouvre tout sauf « J'y vis » et « Visité ».
+  const affiche = (key: string, status: CountryStatus | undefined): DisplayStatus | undefined =>
+    planned.has(key) && status !== "home" && status !== "visited" ? "planned" : status;
+
+  // Change le statut d'un pays, avec le remplissage façon Been.
+  const appliquer = (key: string, next: CountryStatus | null) => {
+    const avant = affiche(key, statuses[key]);
+    const apres = affiche(key, next ?? undefined);
+    if (next) setStatus(key, next);
+    else clearStatus(key);
+    setAnimateKey(key);
+    if (avant !== apres) {
+      setSpread({ key, from: STATUS_FILL[avant ?? "none"], to: STATUS_FILL[apres ?? "none"], nonce: Date.now() });
+    }
+  };
 
   const open = useCallback((key: string, anchor: MapAnchor | null) => {
     // On retient l'élément qui avait le focus (la recherche, par exemple) pour le lui rendre.
@@ -106,15 +144,25 @@ export function MaCarte() {
   const country = selected ? COUNTRY_BY_KEY.get(selected.key) : undefined;
 
   return (
-    <>
-      <div className="relative">
+    <div className="bento grid-cols-2 lg:grid-cols-12">
+      {/* La carte : la tuile héros */}
+      <section
+        aria-labelledby="titre-carte"
+        className="bento-tile relative col-span-2 aspect-[16/10] lg:col-span-8 lg:row-span-2 lg:aspect-auto lg:min-h-[520px]"
+        style={{ "--i": 0 } as CSSProperties}
+      >
+        <h2 id="titre-carte" className="sr-only">
+          Carte du monde
+        </h2>
         <WorldMap
           ref={mapRef}
+          fill
           statuses={statuses}
           planned={planned}
           hidden={hidden}
           selectedKey={selected?.key ?? null}
           animateKey={animateKey}
+          spread={spread}
           showInvite={hydrated && Object.keys(statuses).length === 0 && planned.size === 0}
           onSelect={open}
           onUserZoom={handleUserZoom}
@@ -126,26 +174,28 @@ export function MaCarte() {
             status={statuses[country.key]}
             anchor={selected?.anchor ?? null}
             mobile={mobile}
-            onSet={(status: CountryStatus) => {
-              setStatus(country.key, status);
-              setAnimateKey(country.key);
-            }}
-            onClear={() => {
-              clearStatus(country.key);
-              setAnimateKey(country.key);
-            }}
+            onSet={(status: CountryStatus) => appliquer(country.key, status)}
+            onClear={() => appliquer(country.key, null)}
             onClose={close}
           />
         )}
-      </div>
-      <MapLegend
+      </section>
+
+      <WorldShareTile index={1} stats={stats} className="col-span-2 lg:col-span-4" />
+      <CountriesTile index={2} stats={stats} homeName={homeName} className="col-span-1 lg:col-span-2" />
+      <ContinentsTile index={3} stats={stats} className="col-span-1 lg:col-span-2" />
+      <WishesTile index={4} wishKeys={wishKeys} className="col-span-2 lg:col-span-4" />
+      <LegendTile
+        index={5}
         stats={stats}
         hidden={hidden}
         onToggle={toggleFilter}
         onShare={share}
         sharing={sharing}
         shareError={shareError}
+        className="col-span-2 lg:col-span-4"
       />
-    </>
+      <LastTripTile index={6} className="col-span-2 lg:col-span-4" />
+    </div>
   );
 }

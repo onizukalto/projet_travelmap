@@ -1,3 +1,4 @@
+import { Intro } from "@/components/intro";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 import { SiteHeader } from "@/components/site-header";
 
@@ -5,9 +6,10 @@ import { SiteHeader } from "@/components/site-header";
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <Intro />
       <a
         href="#contenu"
-        className="sr-only z-50 rounded-control bg-ink px-4 py-3 font-semibold text-surface focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+        className="sr-only z-50 rounded-control bg-ink px-4 py-3 font-semibold text-bg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
       >
         Aller au contenu
       </a>

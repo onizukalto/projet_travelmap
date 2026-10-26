@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, MousePointerClick, Plus, Scan } from "lucide-react";
+import { MousePointerClick } from "lucide-react";
 import { select } from "d3-selection";
 import "d3-transition";
 import { zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior } from "d3-zoom";
@@ -13,6 +13,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type Ref,
 } from "react";
+import { ZoomControls } from "@/components/ui/zoom-controls";
 import { COUNTRY_BY_KEY } from "@/data/countries";
 import type { CountryStatus, DisplayStatus } from "@/lib/map-store";
 import { prefersReducedMotion } from "@/lib/use-media-query";
@@ -23,6 +24,9 @@ const MAX_ZOOM = 12;
 const { width: W, height: H } = WORLD;
 
 export type MapAnchor = { x: number; y: number; width: number; height: number };
+
+/** Remplissage façon Been : la couleur `to` se diffuse dans le pays, par-dessus `from`. */
+export type Spread = { key: string; from: string; to: string; nonce: number };
 
 export type WorldMapHandle = {
   /** Centre la carte sur un pays et renvoie où placer son panneau. */
@@ -39,6 +43,10 @@ type Props = {
   selectedKey: string | null;
   animateKey: string | null;
   showInvite: boolean;
+  /** Pays en train de se remplir (changement de statut). */
+  spread?: Spread | null;
+  /** La carte remplit son conteneur (tuile du bento) au lieu de garder sa hauteur naturelle. */
+  fill?: boolean;
   onSelect: (key: string, anchor: MapAnchor) => void;
   onUserZoom: () => void;
   ref?: Ref<WorldMapHandle>;
@@ -62,25 +70,18 @@ const CountriesLayer = memo(function CountriesLayer({
   statuses,
   planned,
   hidden,
-  animateKey,
-}: LayerProps) {
+}: Omit<LayerProps, "animateKey">) {
   return (
     <g>
       {WORLD.shapes.map(({ key, d }) => {
         const status = displayStatus(key, statuses, planned);
-        const classes = [
-          "country",
-          status && hidden.has(status) ? "is-faded" : "",
-          key === animateKey ? "ink-in" : "",
-        ].join(" ");
         return (
           <path
-            // La clé change avec le statut : seul ce pays est redessiné, et son animation rejoue.
-            key={`${key}-${status ?? "none"}`}
+            key={key}
             data-key={key}
             data-status={status}
             d={d}
-            className={classes}
+            className={`country ${status && hidden.has(status) ? "is-faded" : ""}`}
             style={{ fill: STATUS_FILL[status ?? "none"] }}
           />
         );
@@ -88,6 +89,31 @@ const CountriesLayer = memo(function CountriesLayer({
     </g>
   );
 });
+
+/**
+ * Remplissage façon Been : on recouvre le pays de son ancienne couleur, puis la nouvelle
+ * couleur s'étend depuis son centre, à travers un cercle de découpe qui grandit
+ * (transform: scale, en CSS). Sans animation (moins de mouvement), le cercle est plein d'emblée.
+ */
+function SpreadLayer({ spread }: { spread: Spread }) {
+  const shape = WORLD.shapeByKey.get(spread.key);
+  if (!shape) return null;
+  const [cx, cy] = shape.centroid;
+  const [[x0, y0], [x1, y1]] = shape.bounds;
+  const r = Math.max(...[x0, x1].flatMap((x) => [y0, y1].map((y) => Math.hypot(x - cx, y - cy)))) + 2;
+  const clipId = `remplissage-${spread.nonce}`;
+  return (
+    <g className="pointer-events-none" data-export-skip>
+      <defs>
+        <clipPath id={clipId}>
+          <circle className="spread-circle" cx={cx} cy={cy} r={r} />
+        </clipPath>
+      </defs>
+      <path d={shape.d} className="country" style={{ fill: spread.from }} />
+      <path d={shape.d} className="country" style={{ fill: spread.to }} clipPath={`url(#${clipId})`} />
+    </g>
+  );
+}
 
 /** Petits États sans contour : un point de taille constante à l'écran. */
 function PointsLayer({ statuses, planned, hidden, animateKey, k }: LayerProps & { k: number }) {
@@ -162,6 +188,8 @@ export function WorldMap({
   selectedKey,
   animateKey,
   showInvite,
+  spread = null,
+  fill = false,
   onSelect,
   onUserZoom,
   ref,
@@ -292,14 +320,22 @@ export function WorldMap({
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-panel border border-line bg-surface"
+      className={
+        fill
+          ? "relative h-full w-full overflow-hidden bg-ocean"
+          : "relative overflow-hidden rounded-panel border border-border bg-ocean"
+      }
     >
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Carte du monde. Utilise la recherche pour choisir un pays au clavier."
-        className="block h-auto max-h-[calc(100svh-17rem)] min-h-[220px] w-full touch-none select-none"
+        className={
+          fill
+            ? "absolute inset-0 block h-full w-full touch-none select-none"
+            : "block h-auto max-h-[calc(100svh-17rem)] min-h-[220px] w-full touch-none select-none"
+        }
       >
         <defs>
           <pattern
@@ -345,12 +381,8 @@ export function WorldMap({
               </text>
             ))}
           </g>
-          <CountriesLayer
-            statuses={statuses}
-            planned={planned}
-            hidden={hidden}
-            animateKey={animateKey}
-          />
+          <CountriesLayer statuses={statuses} planned={planned} hidden={hidden} />
+          {spread && <SpreadLayer key={spread.nonce} spread={spread} />}
           <PointsLayer
             statuses={statuses}
             planned={planned}
@@ -366,8 +398,8 @@ export function WorldMap({
       </svg>
 
       {showInvite && (
-        <p className="pop-in pointer-events-none absolute top-3 left-3 flex items-center gap-2 rounded-control border border-line bg-surface-raised px-3 py-2 text-caption text-ink md:top-4 md:left-4">
-          <MousePointerClick aria-hidden strokeWidth={1.8} className="size-4 text-ink-2" />
+        <p className="pop-in pointer-events-none absolute top-3 left-3 flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-caption font-medium text-ink md:top-4 md:left-4">
+          <MousePointerClick aria-hidden strokeWidth={1.75} className="size-4" />
           Clique sur un pays pour le colorier
         </p>
       )}
@@ -375,50 +407,24 @@ export function WorldMap({
       {hover && hoverCountry && (
         <div
           aria-hidden
-          className="pointer-events-none absolute top-0 left-0 z-10 rounded-badge border border-line bg-surface-raised px-2.5 py-1.5 text-caption whitespace-nowrap shadow-float"
+          className="pointer-events-none absolute top-0 left-0 z-10 rounded-badge bg-ink px-2.5 py-1.5 text-caption whitespace-nowrap text-bg"
           style={{ transform: `translate(${hover.x + 14}px, ${hover.y + 16}px)` }}
         >
-          <span className="font-bold text-ink">{hoverCountry.name}</span>
-          {hoverStatus && <span className="ml-1.5 text-ink-2">· {STATUS_LABELS[hoverStatus]}</span>}
+          <span className="font-semibold">{hoverCountry.name}</span>
+          {hoverStatus && <span className="ml-1.5 opacity-75">· {STATUS_LABELS[hoverStatus]}</span>}
         </div>
       )}
 
-      <div className="absolute right-3 bottom-3 flex flex-col overflow-hidden rounded-control border border-line bg-surface-raised md:right-4 md:bottom-4">
-        <ZoomButton label="Zoomer" onClick={() => zoomBy(1.8)} disabled={k >= MAX_ZOOM - 0.01}>
-          <Plus aria-hidden strokeWidth={1.8} className="size-5" />
-        </ZoomButton>
-        <ZoomButton label="Dézoomer" onClick={() => zoomBy(1 / 1.8)} disabled={k <= 1.01}>
-          <Minus aria-hidden strokeWidth={1.8} className="size-5" />
-        </ZoomButton>
-        <ZoomButton label="Recentrer la carte" onClick={reset} disabled={k <= 1.01}>
-          <Scan aria-hidden strokeWidth={1.8} className="size-[18px]" />
-        </ZoomButton>
-      </div>
+      <ZoomControls
+        className="absolute right-3 bottom-3 md:right-4 md:bottom-4"
+        onZoomIn={() => zoomBy(1.8)}
+        onZoomOut={() => zoomBy(1 / 1.8)}
+        onReset={reset}
+        canZoomIn={k < MAX_ZOOM - 0.01}
+        canZoomOut={k > 1.01}
+        canReset={k > 1.01}
+      />
     </div>
   );
 }
 
-function ZoomButton({
-  label,
-  onClick,
-  disabled,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  disabled: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      disabled={disabled}
-      className="flex size-11 cursor-pointer items-center justify-center border-b border-line text-ink transition-colors duration-150 last:border-b-0 hover:bg-bg disabled:cursor-default disabled:text-muted disabled:opacity-60 disabled:hover:bg-transparent"
-    >
-      {children}
-    </button>
-  );
-}

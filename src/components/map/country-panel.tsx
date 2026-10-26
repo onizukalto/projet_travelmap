@@ -71,15 +71,15 @@ export function CountryPanel({ country, status, anchor, mobile, onSet, onClear, 
       aria-labelledby="panneau-pays-titre"
       className={
         mobile
-          ? "sheet-in fixed inset-x-0 bottom-0 z-50 rounded-t-panel border-t border-line bg-surface-raised px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-float"
-          : "pop-in absolute z-20 rounded-panel border border-line bg-surface-raised p-4 shadow-float"
+          ? "sheet-in fixed inset-x-0 bottom-0 z-50 rounded-t-panel border-t border-border bg-surface-raised px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+          : "pop-in absolute z-20 rounded-panel border border-border bg-surface-raised p-4 shadow-float"
       }
       style={position}
     >
-      {mobile && <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line-strong" />}
+      {mobile && <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-line" />}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 id="panneau-pays-titre" className="text-section text-ink">
+          <h2 id="panneau-pays-titre" className="font-display text-[24px] leading-tight font-extrabold tracking-[-0.03em] text-ink">
             {country.name}
           </h2>
           <p className="text-caption text-ink-2">
@@ -91,7 +91,7 @@ export function CountryPanel({ country, status, anchor, mobile, onSet, onClear, 
           type="button"
           aria-label="Fermer"
           onClick={() => onClose(true)}
-          className="-mt-1 -mr-1 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:bg-bg hover:text-ink"
+          className="-mt-1 -mr-1 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:bg-ink hover:text-bg"
         >
           <X aria-hidden strokeWidth={1.8} className="size-5" />
         </button>
@@ -107,10 +107,10 @@ export function CountryPanel({ country, status, anchor, mobile, onSet, onClear, 
               type="button"
               aria-pressed={pressed}
               onClick={() => onSet(value)}
-              className={`flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 rounded-control border px-1 py-2 text-caption transition-colors duration-150 ${
+              className={`flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 rounded-control border px-1 py-2 text-caption transition-[background-color,color,border-color,transform] duration-150 active:scale-95 ${
                 pressed
-                  ? "border-ink bg-bg font-bold text-ink"
-                  : "border-line text-ink-2 hover:border-ink-2 hover:text-ink"
+                  ? "border-border bg-accent-yellow font-bold text-on-accent"
+                  : "border-line text-ink-2 hover:border-border hover:text-ink"
               }`}
             >
               <StatusSwatch status={value} />
@@ -124,7 +124,7 @@ export function CountryPanel({ country, status, anchor, mobile, onSet, onClear, 
         <button
           type="button"
           onClick={onClear}
-          className="mt-2 flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-control text-caption font-semibold text-ink-2 hover:bg-bg hover:text-ink"
+          className="mt-2 flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-control text-caption font-semibold text-ink-2 transition-colors duration-150 hover:bg-surface-2 hover:text-ink"
         >
           <X aria-hidden strokeWidth={1.8} className="size-4" />
           Retirer le statut

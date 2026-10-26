@@ -4,64 +4,79 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ------------------------------------------------------------------
-   Couleurs de l'atlas routier (voir CLAUDE.md).
+   Bento cartographique (voir CLAUDE.md).
    Toutes les couleurs de l'interface passent par ces variables.
    ------------------------------------------------------------------ */
 :root {
-  --bg: #f3f5f4;
-  --surface: #fcfcfa;
+  --bg: #fdfbf7;
+  --surface: #ffffff;
   --surface-raised: #ffffff;
-  --ink: #172433;
-  --ink-2: #4a5868;
-  --muted: #5b6875;
-  --line: #d5dde0;
-  --line-strong: #c9d3d7;
-  --ocean: #d7e3e7;
-  --land: #fcfcfa;
-  --map-border: #a9b8bf;
-  --graticule: #c8d6db;
-  --ocean-label: #4e6470;
-  --visited: #f2c14e;
-  --visited-edge: #d9a21b;
-  --home: #172433;
-  --wish-hatch: #172433;
-  --planned-hatch: #d9a21b;
-  --pepite: #2d6a4f;
-  --pepite-bg: #e2efe7;
-  --warn-bg: #fbefcb;
-  --warn-ink: #7a5300;
+  --surface-2: #f4f0e7;
+  --ink: #111111;
+  --ink-2: #3a3a3a;
+  --muted: #6a665d;
+  --border: #111111;
+  --line: #e5e0d5;
+  --line-strong: #111111;
+  --accent-yellow: #ffde4d;
+  --accent-orange: #ff7a1a;
+  --accent-blue: #2f6bff;
+  --on-accent: #111111;
+  --ocean: #f1ede4;
+  --land: #dcd6c9;
+  --map-border: #fdfbf7;
+  --graticule: #e8e3d8;
+  --ocean-label: #6a665d;
+  --visited: #ffde4d;
+  --visited-edge: #c9a800;
+  --home: #111111;
+  --wish-hatch: #2f6bff;
+  --planned-hatch: #ff7a1a;
+  --pepite: #1f4fd8;
+  --pepite-bg: #e8eeff;
+  --warn-bg: #ffe8d6;
+  --warn-ink: #8a3a00;
+  /* Ombre dure des éléments flottants */
+  --shadow-color: #111111;
 
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0f161d;
-  --surface: #161f28;
-  --surface-raised: #1c2731;
-  --ink: #e6ecef;
-  --ink-2: #a9b6c0;
-  --muted: #93a1ac;
-  --line: #2a3743;
-  --line-strong: #364553;
-  --ocean: #0b1218;
-  --land: #1e2a35;
-  --map-border: #3a4a57;
-  --graticule: #17222b;
-  --ocean-label: #7f95a3;
-  --visited: #e3b341;
-  --visited-edge: #b8891e;
-  --home: #e6ecef;
-  --wish-hatch: #c9d3d9;
-  --planned-hatch: #e3b341;
-  --pepite: #6cc398;
-  --pepite-bg: #17352a;
-  --warn-bg: #3a2f12;
-  --warn-ink: #f2d27a;
+  --bg: #0e0e0e;
+  --surface: #161616;
+  --surface-raised: #1c1c1c;
+  --surface-2: #1f1f1f;
+  --ink: #f5f3ee;
+  --ink-2: #c8c5bd;
+  --muted: #9a968d;
+  --border: #2a2a2a;
+  --line: #262626;
+  --line-strong: #3a3a3a;
+  --accent-yellow: #ffde4d;
+  --accent-orange: #ff7a1a;
+  --accent-blue: #5b8cff;
+  --on-accent: #111111;
+  --ocean: #121212;
+  --land: #2b2b2b;
+  --map-border: #0e0e0e;
+  --graticule: #1a1a1a;
+  --ocean-label: #8f8b82;
+  --visited: #ffde4d;
+  --visited-edge: #c9a800;
+  --home: #f5f3ee;
+  --wish-hatch: #5b8cff;
+  --planned-hatch: #ff7a1a;
+  --pepite: #8aaeff;
+  --pepite-bg: #16213d;
+  --warn-bg: #2b1a0d;
+  --warn-ink: #ffb27a;
+  --shadow-color: #000000;
 
   color-scheme: dark;
 }
 
-/* Exposition à Tailwind : bg-surface, text-ink, border-line, etc.
+/* Exposition à Tailwind : bg-surface, text-ink, border-border, etc.
    Les couleurs par défaut de Tailwind sont retirées pour qu'aucune
    couleur codée en dur ne se glisse dans les composants. */
 @theme inline {
@@ -69,11 +84,17 @@
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
+  --color-border: var(--border);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-orange: var(--accent-orange);
+  --color-accent-blue: var(--accent-blue);
+  --color-on-accent: var(--on-accent);
   --color-ocean: var(--ocean);
   --color-land: var(--land);
   --color-map-border: var(--map-border);
@@ -89,18 +110,26 @@
   --color-warn-bg: var(--warn-bg);
   --color-warn-ink: var(--warn-ink);
 
-  --font-sans: var(--font-overpass), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-float: 4px 4px 0 0 var(--shadow-color);
 }
 
 @theme {
   /* Échelle typographique (CLAUDE.md) */
-  --text-page-title: 2.5rem;
-  --text-page-title--line-height: 1.1;
-  --text-page-title--letter-spacing: -0.02em;
+  --text-hero: 6rem;
+  --text-hero--line-height: 0.9;
+  --text-hero--letter-spacing: -0.05em;
+  --text-hero--font-weight: 800;
+  --text-page-title: 3rem;
+  --text-page-title--line-height: 1;
+  --text-page-title--letter-spacing: -0.04em;
   --text-page-title--font-weight: 800;
   --text-section: 1.375rem;
-  --text-section--line-height: 1.25;
-  --text-section--font-weight: 800;
+  --text-section--line-height: 1.2;
+  --text-section--letter-spacing: -0.02em;
+  --text-section--font-weight: 700;
   --text-body: 1rem;
   --text-body--line-height: 1.55;
   --text-caption: 0.875rem;
@@ -108,13 +137,13 @@
   --text-small: 0.8125rem;
   --text-small--line-height: 1.4;
 
-  /* Rayons : contrôles, panneaux, badges */
-  --radius-control: 8px;
-  --radius-panel: 12px;
-  --radius-badge: 6px;
+  /* Rayons faibles et cohérents : contrôles, conteneurs, badges */
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-badge: 4px;
 
-  /* Ombre réservée aux éléments flottants (popovers, menus) */
-  --shadow-float: 0 12px 32px -12px rgb(15 22 29 / 0.28), 0 2px 6px -2px rgb(15 22 29 / 0.12);
+  /* Ressort CSS des transitions de couleur et de position */
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ------------------------------------------------------------------
@@ -131,6 +160,16 @@ body {
   font-size: 1rem;
   line-height: 1.55;
   font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Titres en Inter Tight, très gras et serrés */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* Focus visible : contour 2 px encre, décalé de 2 px */
@@ -140,31 +179,15 @@ body {
 }
 
 ::selection {
-  background: var(--visited);
-  color: var(--ink);
-}
-.dark ::selection {
-  color: var(--bg);
+  background: var(--accent-yellow);
+  color: var(--on-accent);
 }
 
-/* Noms d'océans et de mers : italique espacé (convention cartographique) */
+/* Noms des océans */
 .ocean-label {
-  font-style: italic;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
+  font-weight: 500;
   fill: var(--ocean-label);
-}
-
-/* Surligneur de navigation.
-   Clair : trait de marqueur jaune sous le texte.
-   Sombre : trait de 3 px (un texte clair sur fond jaune serait illisible). */
-.marker {
-  transition: box-shadow 160ms ease-out;
-}
-[aria-current="page"] .marker {
-  box-shadow: inset 0 -8px 0 var(--visited);
-}
-.dark [aria-current="page"] .marker {
-  box-shadow: inset 0 -3px 0 var(--visited);
 }
 
 /* Petite apparition des éléments flottants, en réponse à un clic */
@@ -179,8 +202,83 @@ body {
   }
 }
 .pop-in {
-  animation: pop-in 140ms ease-out;
+  animation: pop-in 160ms var(--ease-spring);
   transform-origin: top right;
+}
+
+/* ------------------------------------------------------------------
+   Grille bento : un fond --border et 1 px d'écart entre les tuiles
+   ------------------------------------------------------------------ */
+/* Dans la couche « components » : les utilitaires Tailwind (bg-ocean…) restent prioritaires. */
+@layer components {
+  .bento {
+    display: grid;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+  }
+  .bento > * {
+    background: var(--surface);
+    min-width: 0;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Préchargement : une fois par session (voir le script dans layout.tsx)
+   ------------------------------------------------------------------ */
+.intro {
+  display: none;
+}
+html[data-intro="play"] .intro {
+  display: flex;
+  animation: intro-out 300ms cubic-bezier(0.7, 0, 0.2, 1) 550ms both;
+}
+@keyframes intro-out {
+  to {
+    transform: translateY(-100%);
+  }
+}
+.intro-letter {
+  display: inline-block;
+  animation: intro-letter 320ms var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+@keyframes intro-letter {
+  from {
+    opacity: 0;
+    transform: translateY(60%);
+  }
+}
+.intro-mark {
+  animation: intro-mark 360ms var(--ease-spring) both;
+}
+@keyframes intro-mark {
+  from {
+    transform: scale(0) rotate(-45deg);
+  }
+}
+.intro-progress {
+  transform-origin: left;
+  animation: intro-progress 480ms cubic-bezier(0.6, 0, 0.2, 1) 60ms both;
+}
+@keyframes intro-progress {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Les tuiles apparaissent en cascade pendant que le rideau se lève */
+html[data-intro="play"] .bento-tile {
+  animation: tile-in 320ms var(--ease-spring) both;
+  animation-delay: calc(600ms + var(--i, 0) * 40ms);
+}
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
 }
 
 /* ------------------------------------------------------------------
@@ -188,19 +286,16 @@ body {
    ------------------------------------------------------------------ */
 .country {
   stroke: var(--map-border);
-  stroke-width: 0.6px;
+  stroke-width: 0.7px;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
   cursor: pointer;
   transition: opacity 220ms ease-out;
 }
-.country[data-status="visited"] {
-  stroke: var(--visited-edge);
-}
 .country.is-faded {
   opacity: 0.2;
 }
-/* Le pays qui vient de changer de statut se remplit doucement */
+/* Petit État (point) qui vient de changer de statut */
 @keyframes ink-in {
   from {
     opacity: 0.15;
@@ -211,6 +306,17 @@ body {
 }
 .country.ink-in {
   animation: ink-in 420ms ease-out;
+}
+/* Remplissage façon Been : la nouvelle couleur se diffuse depuis le centre du pays */
+.spread-circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spread 620ms var(--ease-spring) both;
+}
+@keyframes spread {
+  from {
+    transform: scale(0);
+  }
 }
 
 /* Panneau mobile qui monte du bas de l'écran */
@@ -223,7 +329,7 @@ body {
   }
 }
 .sheet-in {
-  animation: sheet-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: sheet-in 240ms var(--ease-spring);
 }
 
 /* Tiroir mobile qui glisse depuis la gauche */
@@ -236,15 +342,20 @@ body {
   }
 }
 .drawer-in {
-  animation: drawer-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: drawer-in 240ms var(--ease-spring);
 }
 
+/* Moins de mouvement : fondus courts, aucun déplacement */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  html[data-intro="play"] .intro {
+    display: none;
   }
 }

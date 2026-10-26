@@ -80,9 +80,8 @@ export function Itinerary({ trip, dayCount, selectedDay, onSelectDay }: Props) {
               </span>
             </button>
             {stops.length > 0 && (
-              // Le rail vertical relie les étapes du jour, comme sur une frise.
-              <ol className="relative mt-1 flex flex-col before:absolute before:top-5 before:bottom-5 before:left-[47.5px] before:w-px before:bg-line-strong">
-                {stops.map((stop) => {
+              <ol className="mt-1 flex flex-col">
+                {stops.map((stop, position) => {
                   const index = indexOf.get(stop.id)!;
                   return (
                     <StopRow
@@ -91,6 +90,7 @@ export function Itinerary({ trip, dayCount, selectedDay, onSelectDay }: Props) {
                       stop={stop}
                       index={index}
                       total={trip.stops.length}
+                      linkNext={position < stops.length - 1}
                       dayCount={dayCount}
                       dragging={dragId === stop.id}
                       dropBefore={dropIndex === index}
@@ -116,6 +116,8 @@ type RowProps = {
   stop: Stop;
   index: number;
   total: number;
+  /** Relie cette étape à la suivante du même jour par un trait (la frise). */
+  linkNext: boolean;
   dayCount: number;
   dragging: boolean;
   dropBefore: boolean;
@@ -131,6 +133,7 @@ function StopRow({
   stop,
   index,
   total,
+  linkNext,
   dayCount,
   dragging,
   dropBefore,
@@ -169,6 +172,8 @@ function StopRow({
       }}
       className={`relative rounded-control py-2 pr-1 pl-1 transition-opacity duration-150 ${dragging ? "opacity-40" : ""}`}
     >
+      {/* Trait de la frise : du centre de cette pastille au centre de la suivante. */}
+      {linkNext && <span aria-hidden className="absolute top-[30px] -bottom-[30px] left-[47.5px] w-px bg-line-strong" />}
       {dropBefore && <span aria-hidden className="absolute inset-x-2 -top-px h-0.5 rounded-full bg-ink" />}
       {dropAfter && <span aria-hidden className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-ink" />}
       <div className="flex items-start gap-1.5">

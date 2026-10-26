@@ -11,25 +11,8 @@ import { Fragment, useRef, type CSSProperties } from "react";
 import { StatusSwatch } from "@/components/map-patterns";
 import { ButtonLink } from "@/components/ui/button";
 import { APP_HOME } from "@/lib/nav";
-import { ColoringMap, type ColoringStep } from "./coloring-map";
-
-/** Les pays qui se colorient tout seuls dans le héros, dans l'ordre. */
-const SEQUENCE: ColoringStep[] = [
-  { key: "250", status: "home" },
-  { key: "724", status: "visited" },
-  { key: "392", status: "wish" },
-  { key: "604", status: "visited" },
-  { key: "352", status: "planned" },
-  { key: "504", status: "visited" },
-  { key: "554", status: "wish" },
-  { key: "124", status: "visited" },
-  { key: "704", status: "planned" },
-  { key: "710", status: "visited" },
-  { key: "032", status: "wish" },
-  { key: "268", status: "planned" },
-  { key: "484", status: "visited" },
-  { key: "036", status: "wish" },
-];
+import { ColoringMap } from "./coloring-map";
+import { SEQUENCE_MONDE } from "./sequences";
 
 const LIGNES = [
   ["Colorie", "le", "monde."],
@@ -146,7 +129,7 @@ export function Hero() {
           style={{ "--d": "380ms" } as CSSProperties}
         >
           <ColoringMap
-            steps={SEQUENCE}
+            steps={SEQUENCE_MONDE}
             loop
             className="block aspect-[1000/451] w-full"
           />

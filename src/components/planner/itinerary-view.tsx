@@ -2,7 +2,7 @@
 
 import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star } from "lucide-react";
 import { useState } from "react";
-import { buttonPrimary } from "@/lib/button";
+import { Button } from "@/components/ui/button";
 import { CrowdGauge } from "./crowd-gauge";
 import type { EtapeRendue, ItineraireRendu } from "./types";
 
@@ -35,9 +35,9 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
   };
 
   return (
-    <section aria-label={`Itinéraire : ${itineraire.titre}`} className="rounded-panel border border-line bg-surface">
+    <section aria-label={`Itinéraire : ${itineraire.titre}`} className="overflow-hidden rounded-panel border border-border bg-surface">
       <header className="px-4 pt-4 md:px-5 md:pt-5">
-        <h3 className="text-section text-ink">{itineraire.titre}</h3>
+        <h3 className="font-display text-[24px] leading-tight font-extrabold tracking-[-0.03em] text-ink">{itineraire.titre}</h3>
         <p className="mt-0.5 text-small text-muted">{itineraire.verification}</p>
       </header>
 
@@ -47,18 +47,19 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
           const shown = selectedDay === jour.jour;
           const panelId = `jour-${itineraire.titre}-${jour.jour}`.replace(/\s+/g, "-");
           return (
-            <li key={jour.jour} className="border-t border-line">
+            <li key={jour.jour} className="border-t border-border">
               <h4>
                 <button
                   type="button"
                   aria-expanded={expanded}
                   aria-controls={panelId}
                   onClick={() => toggle(jour.jour)}
-                  className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-4 py-2 text-left hover:bg-bg md:px-5"
+                  className="flex min-h-14 w-full cursor-pointer items-center gap-3 px-4 py-2 text-left transition-colors duration-150 hover:bg-surface-2 md:px-5"
                 >
+                  {/* Le jour affiché sur la carte prend la pastille jaune. */}
                   <span
-                    className={`px-0.5 pt-0.5 font-extrabold whitespace-nowrap text-ink ${
-                      shown ? "shadow-[inset_0_-8px_0_var(--visited)] dark:shadow-[inset_0_-3px_0_var(--visited)]" : ""
+                    className={`rounded-badge border px-2 py-0.5 font-display text-[17px] font-extrabold tracking-[-0.02em] whitespace-nowrap transition-colors duration-200 ${
+                      shown ? "border-ink bg-accent-yellow text-on-accent" : "border-transparent text-ink"
                     }`}
                   >
                     Jour {jour.jour}
@@ -67,21 +68,21 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
                   {jour.etapes.length > 0 ? (
                     <span className="text-small text-muted">{jour.etapes.length}</span>
                   ) : (
-                    jour.trajet && <Car aria-label="Jour de route" strokeWidth={1.8} className="size-4 shrink-0 text-muted" />
+                    jour.trajet && <Car aria-label="Jour de route" strokeWidth={1.75} className="size-4 shrink-0 text-muted" />
                   )}
                   <ChevronDown
                     aria-hidden
-                    strokeWidth={1.8}
-                    className={`size-5 shrink-0 text-ink-2 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+                    strokeWidth={1.75}
+                    className={`size-5 shrink-0 text-ink-2 transition-transform duration-300 ease-[var(--ease-spring)] ${expanded ? "rotate-180" : ""}`}
                   />
                 </button>
               </h4>
               {expanded && (
-                <ol id={panelId} className="flex flex-col gap-3 px-4 pb-4 md:px-5">
+                <ol id={panelId} className="pop-in flex flex-col gap-3 px-4 pb-4 md:px-5">
                   {/* Jour de route : le trajet, sous le titre (seul s'il n'y a pas d'étape) */}
                   {jour.trajet && (
                     <li className="flex items-center gap-2 text-caption text-ink-2">
-                      <Car aria-hidden strokeWidth={1.8} className="size-4 shrink-0" />
+                      <Car aria-hidden strokeWidth={1.75} className="size-4 shrink-0" />
                       <span>
                         <span className="sr-only">Trajet : </span>
                         {jour.trajet}
@@ -102,11 +103,11 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
       </ol>
 
       {onSave && total > 0 && (
-        <div className="border-t border-line p-4 md:px-5">
-          <button type="button" onClick={onSave} className={`${buttonPrimary} w-full sm:w-auto`}>
-            <BookmarkPlus aria-hidden strokeWidth={1.8} className="size-[18px]" />
+        <div className="border-t border-border p-4 md:px-5">
+          <Button variant="primary" onClick={onSave} className="w-full sm:w-auto">
+            <BookmarkPlus aria-hidden strokeWidth={1.75} className="size-[18px]" />
             Enregistrer le voyage
-          </button>
+          </Button>
         </div>
       )}
     </section>
@@ -117,24 +118,24 @@ function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
   return (
     <li
       className={`rounded-panel border p-3.5 ${
-        etape.pepite ? "border-pepite/40 bg-pepite-bg/50" : "border-line bg-surface-raised"
+        etape.pepite ? "border-accent-blue bg-pepite-bg" : "border-line bg-surface"
       }`}
     >
       <div className="flex items-start gap-3">
         <span
           aria-hidden
           className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-small font-extrabold tabular-nums ${
-            etape.pepite ? "bg-pepite text-surface dark:text-bg" : "bg-ink text-surface"
+            etape.pepite ? "bg-pepite text-bg" : "bg-ink text-bg"
           }`}
         >
           {number}
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="font-bold text-ink">{etape.nom}</p>
+            <p className="font-display text-[17px] font-bold tracking-[-0.01em] text-ink">{etape.nom}</p>
             {etape.pepite && (
-              <span className="inline-flex items-center gap-1 rounded-badge bg-pepite-bg px-2 pt-0.5 text-small font-bold text-pepite">
-                <Gem aria-hidden strokeWidth={1.8} className="size-3.5" />
+              <span className="inline-flex items-center gap-1 rounded-badge border border-accent-blue bg-surface px-2 py-0.5 text-small font-bold text-pepite">
+                <Gem aria-hidden strokeWidth={1.75} className="size-3.5" />
                 Pépite
               </span>
             )}
@@ -143,7 +144,7 @@ function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
             {etape.type && <span>{etape.type}</span>}
             {etape.note !== null && (
               <span className="inline-flex items-center gap-1 tabular-nums">
-                <Star aria-hidden strokeWidth={1.8} className="size-3.5 fill-visited text-visited-edge" />
+                <Star aria-hidden strokeWidth={1.75} className="size-3.5 fill-visited text-visited-edge" />
                 <span>
                   {noteFr.format(etape.note)}
                   <span className="sr-only"> sur 5</span> · {avisFr.format(etape.nombreAvis)} avis
@@ -161,7 +162,7 @@ function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
               className="mt-1.5 inline-flex min-h-11 items-center gap-1.5 text-caption font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
             >
               Voir sur Google Maps
-              <ExternalLink aria-hidden strokeWidth={1.8} className="size-3.5" />
+              <ExternalLink aria-hidden strokeWidth={1.75} className="size-3.5" />
               <span className="sr-only">(nouvel onglet)</span>
             </a>
           )}

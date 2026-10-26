@@ -72,24 +72,24 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
         }
       />
 
-      <div className="absolute top-3 left-3 flex items-center gap-1 rounded-control border border-line bg-surface-raised p-1">
+      <div className="absolute top-3 left-3 flex max-w-[calc(100%-1.5rem)] items-center gap-1 rounded-control border border-border bg-surface p-1 sm:max-w-[calc(100%-5.5rem)]">
         <button
           type="button"
           aria-label="Jour précédent"
           disabled={index === 0}
           onClick={() => go(-1)}
-          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink hover:bg-bg disabled:cursor-default disabled:text-muted disabled:opacity-50 disabled:hover:bg-transparent"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink transition-colors duration-150 hover:bg-surface-2 disabled:cursor-default disabled:text-muted disabled:opacity-50 disabled:hover:bg-transparent"
         >
-          <ChevronLeft aria-hidden strokeWidth={1.8} className="size-5" />
+          <ChevronLeft aria-hidden strokeWidth={1.75} className="size-5" />
         </button>
         <p aria-live="polite" className="min-w-0 px-1 text-center">
-          <span className="block font-bold text-ink tabular-nums">
+          <span className="block font-display text-[17px] font-extrabold tracking-[-0.02em] text-ink tabular-nums">
             Jour {day} sur {days.length}
           </span>
           {current && <span className="block max-w-56 truncate text-small text-ink-2">{current.titre}</span>}
           {current?.trajet && (
             <span className="flex max-w-64 items-start justify-center gap-1 text-small text-ink-2">
-              <Car aria-hidden strokeWidth={1.8} className="mt-0.5 size-3.5 shrink-0" />
+              <Car aria-hidden strokeWidth={1.75} className="mt-0.5 size-3.5 shrink-0" />
               {current.trajet}
             </span>
           )}
@@ -99,16 +99,16 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
           aria-label="Jour suivant"
           disabled={index === days.length - 1}
           onClick={() => go(1)}
-          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink hover:bg-bg disabled:cursor-default disabled:text-muted disabled:opacity-50 disabled:hover:bg-transparent"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-control text-ink transition-colors duration-150 hover:bg-surface-2 disabled:cursor-default disabled:text-muted disabled:opacity-50 disabled:hover:bg-transparent"
         >
-          <ChevronRight aria-hidden strokeWidth={1.8} className="size-5" />
+          <ChevronRight aria-hidden strokeWidth={1.75} className="size-5" />
         </button>
       </div>
 
       {fullRoute.stops.length > 1 && (
-        <figure className="absolute right-3 bottom-3 hidden w-44 overflow-hidden rounded-control border border-line bg-surface-raised sm:block">
+        <figure className="absolute right-3 bottom-3 hidden w-44 overflow-hidden rounded-control border border-border bg-surface sm:block">
           <MiniRouteMap trip={fullRoute} className="block aspect-[5/3] w-full" />
-          <figcaption className="px-2 py-1 text-small text-ink-2">Parcours complet</figcaption>
+          <figcaption className="border-t border-line px-2 py-1 text-small text-ink-2">Parcours complet</figcaption>
         </figure>
       )}
     </div>

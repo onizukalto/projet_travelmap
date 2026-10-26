@@ -93,7 +93,7 @@ export function Planner({ initialConversation, initialText = "" }: Props) {
       {hydrated ? (
         <HistoryColumn {...list} onNew={nouvelle} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
       ) : (
-        <div aria-hidden className="hidden w-72 border-r border-line bg-surface lg:block" />
+        <div aria-hidden className="hidden w-72 border-r border-border bg-surface lg:block" />
       )}
 
       {hydrated ? (

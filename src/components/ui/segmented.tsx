@@ -68,7 +68,7 @@ export function Segmented<T extends string>({ options, value, onChange, ariaLabe
                 className="absolute inset-0 rounded-[4px] border border-border bg-accent-yellow"
               />
             )}
-            <span className="relative flex items-center gap-1.5">
+            <span className="relative flex items-center gap-1.5 whitespace-nowrap">
               {option.icon}
               {!option.iconOnly && option.label}
             </span>

@@ -168,6 +168,8 @@ export function TripMap({
   });
   const projectedGhost = pending ? projectStop(projection, pending.lon, pending.lat) : null;
   const ghost = projectedGhost ? view.apply(projectedGhost) : null;
+  // La légende ne montre que les moyens de transport du voyage (tous s'il n'a pas encore de trajet).
+  const used = [...new Set(stops.slice(1).map((s) => s.transport))];
 
   const handleClick = (event: React.MouseEvent<SVGSVGElement>) => {
     if (!onPlace) return;
@@ -215,7 +217,7 @@ export function TripMap({
 
       {legend !== null && (
         <div className="absolute bottom-3 left-3 max-w-[calc(100%-10rem)] rounded-control border border-border bg-surface px-3 py-2 md:max-w-[calc(100%-5.5rem)]">
-          {legend ?? <RouteLegend />}
+          {legend ?? <RouteLegend only={used.length > 0 ? used : undefined} />}
         </div>
       )}
 

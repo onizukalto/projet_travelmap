@@ -33,7 +33,7 @@ export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectD
     const text = message.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
     return (
       <li className="flex justify-end">
-        <p className="max-w-[85%] rounded-panel border border-line bg-surface-raised px-4 py-2.5 whitespace-pre-wrap text-ink">
+        <p className="max-w-[85%] rounded-panel border border-ink bg-ink px-4 py-2.5 whitespace-pre-wrap text-bg">
           <span className="sr-only">Toi : </span>
           {text}
         </p>
@@ -112,14 +112,14 @@ function ToolLine({
 }) {
   return (
     <p className="flex items-center gap-2 text-small text-muted">
-      <Icon aria-hidden strokeWidth={1.8} className="size-4 shrink-0" />
+      <Icon aria-hidden strokeWidth={1.75} className="size-4 shrink-0" />
       <span className="min-w-0 truncate">{children}</span>
       {failed ? (
-        <TriangleAlert aria-label="interrompu" strokeWidth={1.8} className="size-3.5 shrink-0 text-warn-ink" />
+        <TriangleAlert aria-label="interrompu" strokeWidth={1.75} className="size-3.5 shrink-0 text-warn-ink" />
       ) : done ? (
         <Check aria-label="terminé" strokeWidth={2} className="size-3.5 shrink-0 text-pepite" />
       ) : (
-        <LoaderCircle aria-label="en cours" strokeWidth={1.8} className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none" />
+        <LoaderCircle aria-label="en cours" strokeWidth={1.75} className="size-3.5 shrink-0 animate-spin motion-reduce:animate-none" />
       )}
     </p>
   );
@@ -139,7 +139,7 @@ function Reasoning({ text }: { text: string }) {
         {open ? "Masquer la réflexion" : "Voir la réflexion"}
       </button>
       {open && (
-        <p className="mt-1 rounded-control bg-bg px-3 py-2 text-small whitespace-pre-wrap text-ink-2">{text}</p>
+        <p className="mt-1 rounded-control bg-surface-2 px-3 py-2 text-small whitespace-pre-wrap text-ink-2">{text}</p>
       )}
     </div>
   );

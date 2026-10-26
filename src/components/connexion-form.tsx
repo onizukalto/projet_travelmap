@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useRef, useState } from "react";
-import { buttonPrimary } from "@/lib/button";
+import { Button } from "@/components/ui/button";
 
 type Etat = "pret" | "envoi" | "refuse" | "indisponible";
 
@@ -63,19 +63,19 @@ export function ConnexionForm({ suite }: { suite: string }) {
           }}
           aria-invalid={etat === "refuse"}
           aria-describedby={erreur ? "erreur-connexion" : undefined}
-          className="h-12 w-full rounded-control border border-line-strong bg-surface-raised pr-12 pl-4 text-ink transition-colors duration-150 hover:border-ink-2 focus-visible:border-ink aria-invalid:border-warn-ink"
+          className="h-12 w-full rounded-control border border-line-strong bg-surface pr-12 pl-4 text-ink transition-colors duration-150 hover:border-ink focus-visible:border-ink aria-invalid:border-accent-orange"
         />
         <button
           type="button"
           aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
           aria-pressed={visible}
           onClick={() => setVisible((value) => !value)}
-          className="absolute top-1/2 right-0.5 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-control text-ink-2 hover:text-ink"
+          className="absolute top-1/2 right-0.5 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-control text-ink-2 transition-colors duration-150 hover:text-ink"
         >
           {visible ? (
-            <EyeOff aria-hidden strokeWidth={1.8} className="size-5" />
+            <EyeOff aria-hidden strokeWidth={1.75} className="size-5" />
           ) : (
-            <Eye aria-hidden strokeWidth={1.8} className="size-5" />
+            <Eye aria-hidden strokeWidth={1.75} className="size-5" />
           )}
         </button>
       </div>
@@ -84,20 +84,16 @@ export function ConnexionForm({ suite }: { suite: string }) {
         {erreur}
       </p>
 
-      <button
-        type="submit"
-        disabled={!motDePasse || etat === "envoi"}
-        className={`${buttonPrimary} mt-3 h-12 w-full`}
-      >
+      <Button type="submit" variant="primary" size="lg" disabled={!motDePasse || etat === "envoi"} className="mt-3 w-full">
         {etat === "envoi" ? (
           <>
-            <LoaderCircle aria-hidden strokeWidth={1.8} className="size-[18px] animate-spin motion-reduce:animate-none" />
+            <LoaderCircle aria-hidden strokeWidth={1.75} className="size-[18px] animate-spin motion-reduce:animate-none" />
             Vérification…
           </>
         ) : (
           "Entrer"
         )}
-      </button>
+      </Button>
     </form>
   );
 }

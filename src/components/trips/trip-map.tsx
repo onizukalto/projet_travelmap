@@ -36,6 +36,10 @@ type Props = {
 };
 
 const MAX_ZOOM = 12;
+// On peut dézoomer jusqu'à voir 32 fois la largeur du cadrage initial : le fond de carte
+// est dessiné sur une zone de MARGE largeurs de chaque côté, et le déplacement y est limité.
+const MIN_ZOOM = 1 / 32;
+const MARGE = 16;
 
 /**
  * Carte régionale du voyage, cadrée sur les étapes (frontières 50m chargées à la demande).
@@ -100,10 +104,10 @@ export function TripMap({
     const svg = svgRef.current;
     if (!svg) return;
     const behavior = zoom<SVGSVGElement, unknown>()
-      .scaleExtent([1, MAX_ZOOM])
+      .scaleExtent([MIN_ZOOM, MAX_ZOOM])
       .translateExtent([
-        [0, 0],
-        [width, height],
+        [-MARGE * width, -MARGE * height],
+        [(MARGE + 1) * width, (MARGE + 1) * height],
       ])
       .extent([
         [0, 0],
@@ -132,11 +136,21 @@ export function TripMap({
     if (zoomRef.current) animate()?.call(zoomRef.current.transform, zoomIdentity);
   };
 
-  // La vue se cadre sur les étapes (et le point en attente), pas à chaque survol.
+  // La vue se cadre sur les étapes, pas sur le point en attente : il est posé là où l'on a cliqué,
+  // éventuellement hors du cadre quand on a dézoomé.
   const projection = useMemo(() => {
-    const frame = pending ? [...stops, pending] : stops;
-    return fitProjection(frame, width, height, Math.min(72, width / 8), minSpan);
-  }, [stops, pending, width, height, minSpan]);
+    // Le fond de carte déborde largement du cadre, pour qu'il reste des pays autour quand on dézoome.
+    return fitProjection(stops, width, height, Math.min(72, width / 8), minSpan).clipExtent([
+      [-MARGE * width, -MARGE * height],
+      [(MARGE + 1) * width, (MARGE + 1) * height],
+    ]);
+  }, [stops, width, height, minSpan]);
+
+  // Nouveau cadrage (étape ajoutée, autre jour) : on revient à la vue d'ensemble des étapes.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (svg && zoomRef.current) select(svg).call(zoomRef.current.transform, zoomIdentity);
+  }, [projection]);
 
   // Mémoïsé : le fond de carte ne se recalcule pas à chaque image du zoom.
   const land = useMemo(() => {
@@ -228,8 +242,8 @@ export function TripMap({
         onZoomOut={() => zoomBy(1 / 1.8)}
         onReset={recenter}
         canZoomIn={view.k < MAX_ZOOM - 0.01}
-        canZoomOut={view.k > 1.01}
-        canReset={view.k > 1.01 || Math.abs(view.x) > 1 || Math.abs(view.y) > 1}
+        canZoomOut={view.k > MIN_ZOOM * 1.01}
+        canReset={Math.abs(view.k - 1) > 0.01 || Math.abs(view.x) > 1 || Math.abs(view.y) > 1}
       />
     </div>
   );

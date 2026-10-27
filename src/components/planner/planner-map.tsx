@@ -54,7 +54,7 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
         selectedDay={stops.length > 0 ? null : day}
         onSelectDay={() => {}}
         pepiteIds={pepites}
-        minSpan={0.25}
+        minSpan={1}
         labels
         // La mini-carte du parcours occupe le coin bas droit à partir de sm.
         controlsClassName="right-3 bottom-3 sm:top-3 sm:bottom-auto"

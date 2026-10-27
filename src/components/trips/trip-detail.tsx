@@ -48,7 +48,7 @@ export function TripDetail({ id }: { id: string }) {
         <h1 className="font-display text-[44px] leading-[0.95] font-extrabold tracking-[-0.05em] text-ink md:text-[64px]">
           Voyage introuvable
         </h1>
-        <p className="text-lg text-ink-2">Ce voyage n&apos;existe pas, ou il a été supprimé de ce navigateur.</p>
+        <p className="text-lg text-ink-2">Ce voyage n&apos;existe pas, ou il a été supprimé.</p>
         <ButtonLink href="/voyages" variant="secondary">
           <ArrowLeft aria-hidden strokeWidth={1.75} className="size-[18px]" />
           Retour aux voyages

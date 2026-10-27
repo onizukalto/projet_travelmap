@@ -4,6 +4,7 @@ import { MapPatterns } from "@/components/map-patterns";
 import { MotionProvider } from "@/components/motion-provider";
 import { NavigationFeedback } from "@/components/navigation-feedback";
 import { StoreHydration } from "@/components/store-hydration";
+import { SyncProvider } from "@/components/sync-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/toaster";
 import { Suspense } from "react";
@@ -53,6 +54,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider>
           <MotionProvider>
             <StoreHydration />
+            {/* Compte : suit la session et synchronise les stores avec Supabase */}
+            <SyncProvider />
             <MapPatterns />
             {/* Barre de chargement entre les pages (elle lit l'adresse : dans un Suspense) */}
             <Suspense fallback={null}>

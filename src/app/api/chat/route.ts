@@ -9,11 +9,22 @@ import { repondre } from "@/lib/agent/tools/repondre";
 import type { Registre } from "@/lib/agent/lieux-verifies";
 import { limiteVisiteur, limiteGlobale, identifiantVisiteur } from "@/lib/agent/limites";
 import { compacterHistorique } from "@/lib/agent/historique";
+import { supabaseServeur } from "@/lib/supabase/server";
 
 // Durée maximale d'une requête sur Vercel (en secondes) : l'agent en a besoin d'environ 20
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  // Garde-fou n°0 : seuls les comptes connectés utilisent l'agent (et ses quotas).
+  // getUser vérifie la session auprès de Supabase : un cookie falsifié ne passe pas.
+  const supabase = await supabaseServeur();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return Response.json({ error: "compte-requis" }, { status: 401 });
+  }
+
   // Garde-fou n°1 : on compte AVANT de faire quoi que ce soit de coûteux
   const [visiteur, site] = await Promise.all([
     limiteVisiteur.limit(identifiantVisiteur(req)),

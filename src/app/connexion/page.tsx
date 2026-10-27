@@ -1,21 +1,35 @@
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Suspense, type CSSProperties } from "react";
+import { ConnexionEmail } from "@/components/connexion-email";
 import { ConnexionForm } from "@/components/connexion-form";
 import { ColoringMap } from "@/components/landing/coloring-map";
 import { SEQUENCE_MONDE } from "@/components/landing/sequences";
 import { Logo } from "@/components/logo";
-import { APP_HOME } from "@/lib/nav";
+import { COOKIE_ACCES, jetonValide, motDePasseDuSite } from "@/lib/acces";
+import { destinationSure } from "@/lib/nav";
 
 export const metadata: Metadata = { title: "Connexion" };
 
-/** N'accepte qu'une page de ce site comme destination après la connexion. */
-function destination(suite: string | string[] | undefined) {
-  if (typeof suite !== "string" || !suite.startsWith("/") || suite.startsWith("//")) return APP_HOME;
-  if (suite === "/" || suite.startsWith("/connexion") || suite.startsWith("/api/")) return APP_HOME;
-  return suite;
+/** Première étape (mot de passe du site) tant qu'il n'a pas été donné, puis le compte (lien par e-mail). */
+async function etape() {
+  if (!motDePasseDuSite()) return "compte" as const;
+  const magasin = await cookies();
+  return jetonValide(magasin.get(COOKIE_ACCES)?.value) ? ("compte" as const) : ("mot-de-passe" as const);
 }
+
+const TEXTES = {
+  "mot-de-passe": {
+    titre: "Accès privé",
+    texte: "Ce site est réservé à quelques personnes pour l'instant. Entre le mot de passe pour continuer.",
+  },
+  compte: {
+    titre: "Connexion",
+    texte: "Reçois un lien de connexion par e-mail : pas de mot de passe à retenir. Ta carte et tes voyages te suivent sur tous tes appareils.",
+  },
+};
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -44,20 +58,30 @@ export default function ConnexionPage({ searchParams }: Props) {
           <Logo href="/" />
         </div>
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">
-          <h1 className="reveal-up font-display text-[48px] leading-[0.95] font-extrabold tracking-[-0.05em] text-ink md:text-[64px]">
-            Accès privé
-          </h1>
-          <p className="reveal-up mt-4 text-lg text-ink-2" style={{ "--d": "80ms" } as CSSProperties}>
-            Ce site est réservé à quelques personnes pour l&apos;instant. Entre le mot de passe pour continuer.
-          </p>
-          {/* La page à rouvrir après connexion (?suite=…) n'est connue qu'à la visite. */}
-          <div className="reveal-up" style={{ "--d": "160ms" } as CSSProperties}>
-            <Suspense fallback={<ConnexionForm suite={APP_HOME} />}>
-              {searchParams.then((params) => (
-                <ConnexionForm suite={destination(params.suite)} />
-              ))}
-            </Suspense>
-          </div>
+          {/* L'étape (mot de passe ou compte) et la page de retour ne sont connues qu'à la visite. */}
+          <Suspense fallback={<div aria-hidden className="h-72" />}>
+            {searchParams.then(async (params) => {
+              const quelle = await etape();
+              const suite = destinationSure(params.suite);
+              return (
+                <>
+                  <h1 className="reveal-up font-display text-[48px] leading-[0.95] font-extrabold tracking-[-0.05em] text-ink md:text-[64px]">
+                    {TEXTES[quelle].titre}
+                  </h1>
+                  <p className="reveal-up mt-4 text-lg text-ink-2" style={{ "--d": "80ms" } as CSSProperties}>
+                    {TEXTES[quelle].texte}
+                  </p>
+                  <div className="reveal-up" style={{ "--d": "160ms" } as CSSProperties}>
+                    {quelle === "mot-de-passe" ? (
+                      <ConnexionForm suite={suite} />
+                    ) : (
+                      <ConnexionEmail suite={suite} lienExpire={params.erreur === "lien"} />
+                    )}
+                  </div>
+                </>
+              );
+            })}
+          </Suspense>
         </div>
         <Link
           href="/"

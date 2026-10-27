@@ -194,7 +194,7 @@ export function NotesTab({ trip }: { trip: Trip }) {
         placeholder="Ce qu'il ne faut pas oublier, les adresses glanées, les souvenirs…"
         className="block w-full resize-y rounded-control border border-line-strong bg-surface px-4 py-3 text-ink placeholder:text-muted hover:border-ink focus-visible:border-ink"
       />
-      <p className="mt-2 text-small text-muted">Enregistré automatiquement dans ce navigateur.</p>
+      <p className="mt-2 text-small text-muted">Enregistré automatiquement.</p>
     </div>
   );
 }

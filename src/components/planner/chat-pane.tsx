@@ -190,14 +190,16 @@ export function ChatPane({ conversationId, initialMessages, initialText = "", on
     router.push(`/voyages/${id}`);
   };
 
+  // Session expirée (le serveur exige un compte connecté) : il faut se reconnecter.
+  const sessionExpiree = Boolean(error && /compte-requis|connexion-requise/.test(error.message));
   // Limite du jour (garde-fou du serveur) : inutile de réessayer avant demain.
-  const dailyLimit = Boolean(error && /limite-jour/.test(error.message));
+  const dailyLimit = !sessionExpiree && Boolean(error && /limite-jour/.test(error.message));
   // Limite du fournisseur (Groq) : ça repasse au bout d'une minute.
-  const rateLimited = !dailyLimit && Boolean(error && /429|rate.?limit|too many|trop de demandes/i.test(error.message));
+  const rateLimited = !sessionExpiree && !dailyLimit && Boolean(error && /429|rate.?limit|too many|trop de demandes/i.test(error.message));
   const last = messages.at(-1);
   // Réponse interrompue : une erreur, ou un dernier message de l'agent sans réponse finale.
   const interrupted =
-    !busy && !dailyLimit && !rateLimited && (Boolean(error) || (last?.role === "assistant" && !aUneReponseFinale(last)));
+    !busy && !sessionExpiree && !dailyLimit && !rateLimited && (Boolean(error) || (last?.role === "assistant" && !aUneReponseFinale(last)));
   const suggestions = latest ? ["Moins de route", "Plus de pépites", `Refais le jour ${day}`] : [];
   const showSuggestions = !busy && !error && !interrupted && last?.role === "assistant" && suggestions.length > 0;
 
@@ -296,6 +298,19 @@ export function ChatPane({ conversationId, initialMessages, initialText = "", on
                     ))}
                   </span>
                   L&apos;agent prépare ta réponse…
+                </li>
+              )}
+
+              {!busy && sessionExpiree && (
+                <li role="alert" className="rounded-panel border border-border bg-warn-bg p-4 text-warn-ink">
+                  <p className="font-semibold">Ta session a expiré.</p>
+                  <p className="mt-0.5 text-caption">Reconnecte-toi pour continuer : ta conversation est gardée.</p>
+                  <a
+                    href="/connexion?suite=/planifier"
+                    className="mt-3 inline-flex min-h-11 items-center rounded-control border border-warn-ink px-4 font-semibold hover:bg-warn-ink hover:text-warn-bg"
+                  >
+                    Me reconnecter
+                  </a>
                 </li>
               )}
 

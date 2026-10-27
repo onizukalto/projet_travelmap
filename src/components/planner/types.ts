@@ -1,8 +1,16 @@
 import type { LieuVerifie } from "@/lib/agent/lieux-verifies";
 import type { Stop } from "@/lib/trips-store";
 
-/** Une étape de l'itinéraire : les faits viennent de Google, la description de l'agent. */
-export type EtapeRendue = LieuVerifie & { description: string; pepite: boolean };
+/**
+ * Une étape de l'itinéraire : les faits viennent de Google, la description de l'agent.
+ * photo : référence Google de la photo (servie par /api/photo) ; photoAuteur : crédit à afficher.
+ */
+export type EtapeRendue = LieuVerifie & {
+  description: string;
+  pepite: boolean;
+  photo?: string;
+  photoAuteur?: string;
+};
 
 /** Ce que renvoie l'outil proposerItineraire. */
 export type ItineraireRendu = {

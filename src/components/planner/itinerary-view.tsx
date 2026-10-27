@@ -1,7 +1,7 @@
 "use client";
 
 import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CrowdGauge } from "./crowd-gauge";
 import type { EtapeRendue, ItineraireRendu } from "./types";
@@ -114,13 +114,58 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
   );
 }
 
+/**
+ * Photo d'une étape, en bandeau 16:9 en haut de la fiche, avec le crédit exigé par Google.
+ * Chargée seulement quand elle devient visible (chaque photo est facturée). Squelette pendant
+ * le chargement, léger fondu à l'apparition ; si elle ne charge pas, le bandeau disparaît.
+ */
+function PhotoEtape({ photo, auteur }: { photo: string; auteur?: string }) {
+  const [etat, setEtat] = useState<"chargement" | "ok" | "erreur">("chargement");
+  const ref = useRef<HTMLImageElement>(null);
+
+  // Image déjà en cache : elle peut finir de charger avant que React n'écoute « load ».
+  useEffect(() => {
+    const image = ref.current;
+    if (image?.complete) setEtat(image.naturalWidth > 0 ? "ok" : "erreur");
+  }, []);
+
+  if (etat === "erreur") return null;
+  return (
+    <div className="relative -mx-3.5 -mt-3.5 mb-3.5 aspect-video overflow-hidden border-b border-line bg-surface-2">
+      {etat === "chargement" && (
+        <div aria-hidden className="absolute inset-0 animate-pulse bg-line motion-reduce:animate-none" />
+      )}
+      {/* <img> et non next/image : la photo vient directement de Google, sans passer par l'optimiseur. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={ref}
+        src={`/api/photo?nom=${encodeURIComponent(photo)}`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setEtat("ok")}
+        onError={() => setEtat("erreur")}
+        className={`absolute inset-0 size-full object-cover transition-opacity duration-500 ${
+          etat === "ok" ? "opacity-100" : "opacity-0"
+        }`}
+      />
+      {etat === "ok" && (
+        <p className="absolute right-2 bottom-2 max-w-[calc(100%-1rem)] truncate rounded-badge bg-ink/75 px-1.5 py-0.5 text-[11px] leading-tight text-bg">
+          Photo : {auteur ? `${auteur} · ` : ""}Google
+        </p>
+      )}
+    </div>
+  );
+}
+
 function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
   return (
     <li
-      className={`rounded-panel border p-3.5 ${
+      className={`overflow-hidden rounded-panel border p-3.5 ${
         etape.pepite ? "border-accent-blue bg-pepite-bg" : "border-line bg-surface"
       }`}
     >
+      {etape.photo && <PhotoEtape photo={etape.photo} auteur={etape.photoAuteur} />}
       <div className="flex items-start gap-3">
         <span
           aria-hidden

@@ -5,7 +5,7 @@ import { Check, CloudSun, LoaderCircle, Route, Search, TriangleAlert } from "luc
 import { useState } from "react";
 import { ItineraryView } from "./itinerary-view";
 import { Markdown } from "./markdown";
-import { isItineraire } from "./types";
+import { isItineraire, type EtapeRendue } from "./types";
 
 const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
@@ -36,12 +36,25 @@ type Props = {
   selectedDay: number | null;
   onSelectDay: (day: number) => void;
   onSave: () => void | Promise<void>;
+  /** Remplace une étape de l'itinéraire (appel qui l'a produit, jour, position). */
+  onReplaceStep?: (toolCallId: string, jour: number, index: number, etape: EtapeRendue) => void;
+  /** Faux pendant que l'agent répond. */
+  editable?: boolean;
   /** Vrai pour le message que l'agent est en train d'écrire. */
   streaming?: boolean;
 };
 
 /** Un message de la conversation : celui de l'utilisateur, ou les étapes et la réponse de l'agent. */
-export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectDay, onSave, streaming = false }: Props) {
+export function ChatMessage({
+  message,
+  latestItineraryId,
+  selectedDay,
+  onSelectDay,
+  onSave,
+  onReplaceStep,
+  editable = true,
+  streaming = false,
+}: Props) {
   if (message.role === "user") {
     const text = message.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
     return (
@@ -118,6 +131,12 @@ export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectD
                 selectedDay={part.toolCallId === latestItineraryId ? selectedDay : null}
                 onSelectDay={onSelectDay}
                 onSave={part.toolCallId === latestItineraryId ? onSave : undefined}
+                onReplaceStep={
+                  part.toolCallId === latestItineraryId && onReplaceStep
+                    ? (jour, index, etape) => onReplaceStep(part.toolCallId, jour, index, etape)
+                    : undefined
+                }
+                editable={editable}
               />
             );
           default:

@@ -16,7 +16,7 @@ import { prefersReducedMotion } from "@/lib/use-media-query";
 import { loadWorld50m } from "@/lib/world-50m";
 import { ChatMessage } from "./chat-message";
 import { PlannerMap } from "./planner-map";
-import { isItineraire, type ItineraireRendu } from "./types";
+import { isItineraire, remplacerEtape, type EtapeRendue, type ItineraireRendu } from "./types";
 
 const IDEAS = [
   "Dix jours au Japon, hors des sentiers battus",
@@ -73,7 +73,7 @@ export function ChatPane({ conversationId, initialMessages, initialText = "", on
   const idRef = useRef(conversationId);
   // useChat recrée sa conversation si son id change : on lui garde celui du départ.
   const [chatId] = useState(conversationId ?? undefined);
-  const { messages, sendMessage, status, stop, error, regenerate, clearError } = useChat({
+  const { messages, setMessages, sendMessage, status, stop, error, regenerate, clearError } = useChat({
     id: chatId,
     messages: initialMessages,
     transport,
@@ -140,6 +140,25 @@ export function ChatPane({ conversationId, initialMessages, initialText = "", on
     pinnedRef.current = true;
     sendMessage({ text: message });
     setText("");
+  };
+
+  // Remplace une étape dans l'itinéraire affiché (ou l'annule), puis enregistre la conversation :
+  // la carte et « Enregistrer le voyage » suivent l'itinéraire, et le changement survit au rechargement.
+  const remplacer = (toolCallId: string, jour: number, index: number, etape: EtapeRendue) => {
+    if (busy || !idRef.current) return;
+    const suivants = messages.map((message) => ({
+      ...message,
+      parts: message.parts.map((part) =>
+        part.type === "tool-proposerItineraire" &&
+        part.toolCallId === toolCallId &&
+        part.state === "output-available" &&
+        isItineraire(part.output)
+          ? { ...part, output: remplacerEtape(part.output, jour, index, etape) }
+          : part,
+      ),
+    }));
+    setMessages(suivants);
+    enregistrer(idRef.current, suivants);
   };
 
   const retry = () => {
@@ -259,6 +278,8 @@ export function ChatPane({ conversationId, initialMessages, initialText = "", on
                   selectedDay={day}
                   onSelectDay={selectDay}
                   onSave={save}
+                  onReplaceStep={remplacer}
+                  editable={!busy}
                   streaming={busy && index === messages.length - 1}
                 />
               ))}

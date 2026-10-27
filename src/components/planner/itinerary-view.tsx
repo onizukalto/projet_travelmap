@@ -1,9 +1,10 @@
 "use client";
 
-import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star } from "lucide-react";
+import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CrowdGauge } from "./crowd-gauge";
+import { AFFLUENCES_A_EVITER, StepAlternatives } from "./step-alternatives";
 import { StepVideo } from "./step-video";
 import type { EtapeRendue, ItineraireRendu } from "./types";
 
@@ -17,10 +18,14 @@ type Props = {
   onSelectDay: (day: number) => void;
   /** Absent pour un ancien itinéraire de la conversation : on n'enregistre que le dernier. */
   onSave?: () => void | Promise<void>;
+  /** Remplace une étape (jour, position) : seulement pour l'itinéraire le plus récent. */
+  onReplaceStep?: (jour: number, index: number, etape: EtapeRendue) => void;
+  /** Faux pendant que l'agent répond : l'itinéraire ne se modifie pas. */
+  editable?: boolean;
 };
 
 /** L'itinéraire proposé par l'assistant : un accordéon par jour. */
-export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: Props) {
+export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave, onReplaceStep, editable = true }: Props) {
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set([itineraire.jours[0]?.jour]));
   const total = itineraire.jours.reduce((n, j) => n + j.etapes.length, 0);
 
@@ -95,7 +100,13 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
                   )}
                   {jour.etapes.map((etape, index) => (
                     // Clé unique même si un lieu apparaît deux fois dans la journée.
-                    <StepCard key={`${jour.jour}-${index}-${etape.id}`} etape={etape} number={index + 1} />
+                    <StepCard
+                      key={`${jour.jour}-${index}-${etape.id}`}
+                      etape={etape}
+                      number={index + 1}
+                      editable={editable}
+                      onReplace={onReplaceStep ? (nouvelle) => onReplaceStep(jour.jour, index, nouvelle) : undefined}
+                    />
                   ))}
                 </ol>
               )}
@@ -160,7 +171,17 @@ function PhotoEtape({ photo, auteur }: { photo: string; auteur?: string }) {
   );
 }
 
-function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
+function StepCard({
+  etape,
+  number,
+  onReplace,
+  editable,
+}: {
+  etape: EtapeRendue;
+  number: number;
+  onReplace?: (nouvelle: EtapeRendue) => void;
+  editable: boolean;
+}) {
   return (
     <li
       className={`overflow-hidden rounded-panel border p-3.5 ${
@@ -216,6 +237,21 @@ function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
               </a>
             )}
             <StepVideo nom={etape.nom} adresse={etape.adresse} />
+            {/* Lieu fréquenté : on propose une alternative plus calme. Étape déjà remplacée : on peut annuler. */}
+            {!etape.origine && AFFLUENCES_A_EVITER.has(etape.affluence) && (
+              <StepAlternatives etape={etape} onReplace={onReplace} disabled={!editable} />
+            )}
+            {etape.origine && onReplace && (
+              <button
+                type="button"
+                disabled={!editable}
+                onClick={() => etape.origine && onReplace(etape.origine)}
+                className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-caption font-semibold text-ink-2 transition-colors duration-150 hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Undo2 aria-hidden strokeWidth={1.75} className="size-3.5" />
+                Annuler<span className="sr-only"> et revenir à {etape.origine.nom}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

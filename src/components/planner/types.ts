@@ -10,7 +10,27 @@ export type EtapeRendue = LieuVerifie & {
   pepite: boolean;
   photo?: string;
   photoAuteur?: string;
+  /** L'étape remplacée par cette alternative : sert à « Annuler ». */
+  origine?: EtapeRendue;
 };
+
+/** Un lieu proposé par /api/alternative : les champs d'une étape, plus sa distance au lieu d'origine. */
+export type Alternative = LieuVerifie & { photo?: string; photoAuteur?: string; distanceKm: number };
+
+/** L'itinéraire avec une étape remplacée (jour, position dans le jour). */
+export function remplacerEtape(
+  itineraire: ItineraireRendu,
+  jour: number,
+  index: number,
+  etape: EtapeRendue,
+): ItineraireRendu {
+  return {
+    ...itineraire,
+    jours: itineraire.jours.map((j) =>
+      j.jour === jour ? { ...j, etapes: j.etapes.map((e, i) => (i === index ? etape : e)) } : j,
+    ),
+  };
+}
 
 /** Ce que renvoie l'outil proposerItineraire. */
 export type ItineraireRendu = {

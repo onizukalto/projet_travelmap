@@ -1,7 +1,7 @@
 "use client";
 
 import type { UIMessage } from "ai";
-import { Check, CloudSun, LoaderCircle, Search, TriangleAlert } from "lucide-react";
+import { Check, CloudSun, LoaderCircle, Route, Search, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { ItineraryView } from "./itinerary-view";
 import { Markdown } from "./markdown";
@@ -15,6 +15,19 @@ type ToolPart = Extract<Part, { type: `tool-${string}` }>;
 
 const isToolPart = (part: Part): part is ToolPart => part.type.startsWith("tool-");
 const hasErreur = (output: unknown) => typeof output === "object" && output !== null && "erreur" in output;
+
+type TrajetCalcule = { troncons?: { de: string; vers: string }[]; total?: { duree: string; distanceKm: number } };
+
+/** Les noms des lieux trouvés par rechercherLieux dans ce message, par id (calculerTrajet ne reçoit que des id). */
+function nomsDesLieux(message: UIMessage) {
+  const noms = new Map<string, string>();
+  for (const part of message.parts) {
+    if (part.type !== "tool-rechercherLieux" || part.state !== "output-available") continue;
+    const lieux = (part.output as { lieux?: { id: string; nom: string }[] } | undefined)?.lieux ?? [];
+    for (const lieu of lieux) noms.set(lieu.id, lieu.nom);
+  }
+  return noms;
+}
 
 type Props = {
   message: UIMessage;
@@ -40,6 +53,8 @@ export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectD
       </li>
     );
   }
+
+  const noms = nomsDesLieux(message);
 
   return (
     <li className="flex flex-col gap-2">
@@ -72,6 +87,20 @@ export function ChatMessage({ message, latestItineraryId, selectedDay, onSelectD
                 {done ? "" : "…"}
               </ToolLine>
             );
+          case "tool-calculerTrajet": {
+            // Les noms viennent du résultat s'il est là (lieux d'un message précédent compris),
+            // sinon des recherches de ce message.
+            const ids = Array.isArray(input.lieuxIds) ? (input.lieuxIds as string[]) : [];
+            const trajet = hasErreur(output) ? undefined : (output as TrajetCalcule | undefined);
+            const premier = trajet?.troncons?.[0]?.de ?? noms.get(ids[0]) ?? "…";
+            const dernier = trajet?.troncons?.at(-1)?.vers ?? (ids.length > 1 ? noms.get(ids[ids.length - 1]) : undefined) ?? "…";
+            return (
+              <ToolLine key={key} icon={Route} done={done} failed={failed || hasErreur(output)}>
+                Trajet : {premier} → {dernier}
+                {trajet?.total ? ` · ${trajet.total.duree}` : ""}
+              </ToolLine>
+            );
+          }
           case "tool-climatTypique": {
             const mois = typeof input.mois === "number" ? MOIS[input.mois - 1] : "…";
             return (

@@ -5,6 +5,7 @@ import { buildSystemPrompt } from "@/lib/agent/system-prompt";
 import { climatTypique } from "@/lib/agent/tools/climat";
 import { creerRechercherLieux } from "@/lib/agent/tools/lieux";
 import { creerProposerItineraire } from "@/lib/agent/tools/itineraire";
+import { creerCalculerTrajet } from "@/lib/agent/tools/trajet";
 import { repondre } from "@/lib/agent/tools/repondre";
 import type { Registre } from "@/lib/agent/lieux-verifies";
 import { limiteVisiteur, limiteGlobale, identifiantVisiteur } from "@/lib/agent/limites";
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
     tools: {
       climatTypique,
       rechercherLieux: creerRechercherLieux(registre),
+      calculerTrajet: creerCalculerTrajet(registre),
       proposerItineraire: creerProposerItineraire(registre),
       repondre,
     },
@@ -57,7 +59,7 @@ export async function POST(req: Request) {
     toolChoice: "required",
     // La boucle s'arrête sur un itinéraire rendu, ou sur une réponse ACCEPTÉE par son garde-fou
     stopWhen: [
-      stepCountIs(14),
+      stepCountIs(20),
       hasToolCall("proposerItineraire"),
       ({ steps }) =>
         steps.at(-1)?.toolResults.some(
@@ -70,7 +72,7 @@ export async function POST(req: Request) {
     ],
     // Filet de sécurité : à partir de la 13e étape, seules les deux sorties finales restent disponibles
     prepareStep: ({ stepNumber }) =>
-      stepNumber >= 12 ? { activeTools: ["proposerItineraire", "repondre"] } : {},
+      stepNumber >= 18 ? { activeTools: ["proposerItineraire", "repondre"] } : {},
     onStepFinish: ({ toolCalls, toolResults }) => {
       for (const call of toolCalls) console.log("[agent] outil appelé :", call.toolName, call.input);
       for (const res of toolResults) console.dir(res.output, { depth: null });

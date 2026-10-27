@@ -4,6 +4,7 @@ import { BookmarkPlus, Car, ChevronDown, ExternalLink, Gem, Star } from "lucide-
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CrowdGauge } from "./crowd-gauge";
+import { StepVideo } from "./step-video";
 import type { EtapeRendue, ItineraireRendu } from "./types";
 
 const noteFr = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -200,18 +201,22 @@ function StepCard({ etape, number }: { etape: EtapeRendue; number: number }) {
             <CrowdGauge affluence={etape.affluence} />
           </p>
           <p className="mt-2 text-caption text-ink">{etape.description}</p>
-          {etape.lienMaps && (
-            <a
-              href={etape.lienMaps}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1.5 inline-flex min-h-11 items-center gap-1.5 text-caption font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
-            >
-              Voir sur Google Maps
-              <ExternalLink aria-hidden strokeWidth={1.75} className="size-3.5" />
-              <span className="sr-only">(nouvel onglet)</span>
-            </a>
-          )}
+          {/* Liens de l'étape ; le panneau vidéo s'ouvre sous eux, sur toute la largeur. */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-5">
+            {etape.lienMaps && (
+              <a
+                href={etape.lienMaps}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center gap-1.5 text-caption font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+              >
+                Voir sur Google Maps
+                <ExternalLink aria-hidden strokeWidth={1.75} className="size-3.5" />
+                <span className="sr-only">(nouvel onglet)</span>
+              </a>
+            )}
+            <StepVideo nom={etape.nom} adresse={etape.adresse} />
+          </div>
         </div>
       </div>
     </li>

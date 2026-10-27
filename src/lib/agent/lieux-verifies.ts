@@ -11,6 +11,8 @@ export type LieuVerifie = {
   lat?: number;
   lon?: number;
   lienMaps?: string;
+  photo?: string;        // référence Google de la photo (jamais envoyée au modèle)
+  photoAuteur?: string;  // nom de l'auteur, à afficher (obligation de Google)
 };
 
 // Le registre : tous les lieux réellement trouvés pendant UNE requête, rangés par id

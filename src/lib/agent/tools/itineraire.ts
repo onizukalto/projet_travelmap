@@ -2,6 +2,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import type { Registre } from "@/lib/agent/lieux-verifies";
+import { calculerRoute } from "@/lib/agent/tools/trajet";
 
 export function creerProposerItineraire(registre: Registre) {
   return tool({
@@ -28,31 +29,42 @@ export function creerProposerItineraire(registre: Registre) {
     // Le gardien : chaque étape est confrontée au registre
     execute: async ({ titre, jours }) => {
       const retires: string[] = [];
+      const alertes: string[] = [];
 
-      const joursVerifies = jours.map((j) => ({
-        jour: j.jour,
-        titre: j.titre,
-        trajet: j.trajet,
-        etapes: j.etapes.flatMap((e) => {
-          const lieu = registre.get(e.lieuId);
-          if (!lieu) {
-            retires.push(e.lieuId); // pas de preuve : l'étape disparaît
-            return [];
+      const joursVerifies = await Promise.all(
+        jours.map(async (j) => {
+          const etapes = j.etapes.flatMap((e) => {
+            const lieu = registre.get(e.lieuId);
+            if (!lieu) {
+              retires.push(e.lieuId);
+              return [];
+            }
+            const pepite = e.pepite && lieu.note !== null && lieu.note >= 4.5 && lieu.nombreAvis < 500;
+            return [{ ...lieu, description: e.description, pepite }];
+          });
+
+          // Le trajet est CALCULÉ par le code dès qu'il y a au moins 2 étapes : le modèle ne peut plus l'inventer
+          let trajet = j.trajet ? `${j.trajet} (estimation)` : undefined;
+          if (etapes.length >= 2) {
+            const route = await calculerRoute(etapes.map((e) => e.id), "voiture", registre);
+            if (!route) {
+              trajet = "Pas de route entre toutes les étapes : une partie se fait à pied.";
+            } else {
+              trajet = `${route.distanceKm} km de route, ${route.duree}`;
+              if (route.secondes > 4 * 3600) alertes.push(`Jour ${j.jour} : plus de 4 h de route.`);
+            }
           }
-          // Les faits viennent de Google ; seule la description vient du modèle
-          // Une pépite, c'est un critère chiffré, vérifié par le code : très bien noté ET peu d'avis
-          const pepite = e.pepite && lieu.note !== null && lieu.note >= 4.5 && lieu.nombreAvis < 500;
-          return [{ ...lieu, description: e.description, pepite }];
-        }),
-      }));
 
-      return {
-        titre,
-        jours: joursVerifies,
-        verification: retires.length
-          ? `${retires.length} étape(s) retirée(s) : lieu non vérifié.`
-          : "Tous les lieux ont été vérifiés.",
-      };
+          return { jour: j.jour, titre: j.titre, trajet, etapes };
+        })
+      );
+
+      const verification = [
+        retires.length ? `${retires.length} étape(s) retirée(s) : lieu non vérifié.` : "Tous les lieux ont été vérifiés.",
+        ...alertes,
+      ].join(" ");
+
+      return { titre, jours: joursVerifies, verification };
     },
   });
 }

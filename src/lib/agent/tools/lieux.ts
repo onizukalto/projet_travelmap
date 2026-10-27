@@ -12,6 +12,7 @@ type PlaceGoogle = {
   rating?: number;
   userRatingCount?: number;
   googleMapsUri?: string;
+  photos?: { name: string; authorAttributions?: { displayName?: string }[] }[];
 };
 
 // Cache partagé entre toutes les requêtes : une même recherche ne coûte qu'un appel à Google
@@ -26,6 +27,14 @@ function affluence(nombreAvis: number) {
 }
 
 const arrondi = (x: number) => Math.round(x * 1e4) / 1e4; // 4 décimales ≈ 10 m
+
+// Ce que voit le modèle : tout, sauf la référence de la photo (inutile pour lui, coûteuse en tokens)
+function pourModele(l: LieuVerifie) {
+  return {
+    id: l.id, nom: l.nom, type: l.type, adresse: l.adresse, note: l.note,
+    nombreAvis: l.nombreAvis, affluence: l.affluence, lat: l.lat, lon: l.lon, lienMaps: l.lienMaps,
+  };
+}
 
 // Fabrique : chaque requête reçoit son propre outil, branché sur son propre registre
 export function creerRechercherLieux(registre: Registre) {
@@ -60,6 +69,7 @@ export function creerRechercherLieux(registre: Registre) {
               "places.rating",
               "places.userRatingCount",
               "places.googleMapsUri",
+              "places.photos",
             ].join(","),
           },
           body: JSON.stringify({ textQuery: requete, languageCode: "fr", pageSize: n }),
@@ -81,6 +91,8 @@ export function creerRechercherLieux(registre: Registre) {
           lat: p.location ? arrondi(p.location.latitude) : undefined,
           lon: p.location ? arrondi(p.location.longitude) : undefined,
           lienMaps: p.googleMapsUri?.split("&")[0],
+          photo: p.photos?.[0]?.name,
+          photoAuteur: p.photos?.[0]?.authorAttributions?.[0]?.displayName,
         }));
         cache.set(cle, lieux);
       }
@@ -89,7 +101,7 @@ export function creerRechercherLieux(registre: Registre) {
       for (const lieu of lieux) registre.set(lieu.id, lieu);
 
       return lieux.length
-        ? { lieux }
+        ? { lieux: lieux.map(pourModele) }
         : { lieux: [], remarque: "Aucun lieu trouvé. N'invente rien : cherche autrement ou propose autre chose." };
     },
   });

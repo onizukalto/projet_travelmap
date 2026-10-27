@@ -5,7 +5,6 @@ import { buildSystemPrompt } from "@/lib/agent/system-prompt";
 import { climatTypique } from "@/lib/agent/tools/climat";
 import { creerRechercherLieux } from "@/lib/agent/tools/lieux";
 import { creerProposerItineraire } from "@/lib/agent/tools/itineraire";
-import { creerCalculerTrajet } from "@/lib/agent/tools/trajet";
 import { repondre } from "@/lib/agent/tools/repondre";
 import type { Registre } from "@/lib/agent/lieux-verifies";
 import { limiteVisiteur, limiteGlobale, identifiantVisiteur } from "@/lib/agent/limites";
@@ -51,7 +50,6 @@ export async function POST(req: Request) {
     tools: {
       climatTypique,
       rechercherLieux: creerRechercherLieux(registre),
-      calculerTrajet: creerCalculerTrajet(registre),
       proposerItineraire: creerProposerItineraire(registre),
       repondre,
     },

@@ -4,6 +4,14 @@ import { z } from "zod";
 import type { Registre } from "@/lib/agent/lieux-verifies";
 import { calculerRoute } from "@/lib/agent/tools/trajet";
 
+// Types Google qui ne sont pas des lieux de visite : jamais une étape, jamais une alternative
+export const TYPES_EXCLUS = new Set([
+  "Agence de voyages",
+  "Parking",
+  "Station-service",
+  "Agence immobilière",
+]);
+
 export function creerProposerItineraire(registre: Registre) {
   return tool({
     description:
@@ -33,12 +41,22 @@ export function creerProposerItineraire(registre: Registre) {
 
       const joursVerifies = await Promise.all(
         jours.map(async (j) => {
+          const vus = new Set<string>(); // lieux déjà placés ce jour-là
           const etapes = j.etapes.flatMap((e) => {
             const lieu = registre.get(e.lieuId);
             if (!lieu) {
               retires.push(e.lieuId);
               return [];
             }
+            if (lieu.type && TYPES_EXCLUS.has(lieu.type)) {
+              retires.push(`${lieu.nom} (pas un lieu de visite)`);
+              return [];
+            }
+            if (vus.has(lieu.id)) {
+              retires.push(`${lieu.nom} (doublon dans la journée)`);
+              return [];
+            }
+            vus.add(lieu.id);
             const pepite = e.pepite && lieu.note !== null && lieu.note >= 4.5 && lieu.nombreAvis < 500;
             return [{ ...lieu, description: e.description, pepite }];
           });

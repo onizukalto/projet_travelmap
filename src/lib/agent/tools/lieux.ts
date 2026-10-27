@@ -18,7 +18,7 @@ type PlaceGoogle = {
 // Cache partagé entre toutes les requêtes : une même recherche ne coûte qu'un appel à Google
 const cache = new Map<string, LieuVerifie[]>();
 
-function affluence(nombreAvis: number) {
+export function affluence(nombreAvis: number) {
   if (nombreAvis < 100) return "très faible";
   if (nombreAvis < 500) return "faible";
   if (nombreAvis < 2000) return "moyenne";

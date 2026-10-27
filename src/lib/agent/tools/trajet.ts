@@ -1,6 +1,4 @@
 // src/lib/agent/tools/trajet.ts
-import type { Registre } from "@/lib/agent/lieux-verifies";
-
 const MODES = { voiture: "DRIVE", "a-pied": "WALK" } as const;
 
 function duree(s: number) {
@@ -10,7 +8,7 @@ function duree(s: number) {
 }
 
 // Calcule la vraie route entre des lieux du registre (appelée par le CODE, pas par le modèle)
-export async function calculerRoute(lieuxIds: string[], mode: keyof typeof MODES, registre: Registre) {
+export async function calculerRoute(lieuxIds: string[], mode: keyof typeof MODES) {
   const point = (id: string) => ({ placeId: id });
   const res = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
     method: "POST",

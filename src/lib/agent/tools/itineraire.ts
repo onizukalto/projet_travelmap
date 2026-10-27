@@ -46,7 +46,7 @@ export function creerProposerItineraire(registre: Registre) {
           // Le trajet est CALCULÉ par le code dès qu'il y a au moins 2 étapes : le modèle ne peut plus l'inventer
           let trajet = j.trajet ? `${j.trajet} (estimation)` : undefined;
           if (etapes.length >= 2) {
-            const route = await calculerRoute(etapes.map((e) => e.id), "voiture", registre);
+            const route = await calculerRoute(etapes.map((e) => e.id), "voiture");
             if (!route) {
               trajet = "Pas de route entre toutes les étapes : une partie se fait à pied.";
             } else {

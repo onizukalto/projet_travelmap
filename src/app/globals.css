@@ -447,6 +447,10 @@ html.lenis body {
   html[data-intro="play"] .intro {
     display: none;
   }
+  /* Les apparitions liées au défilement ne dépendent pas d'une durée : on les coupe. */
+  .scroll-reveal {
+    animation: none !important;
+  }
   /* Accueil : contenu statique et lisible */
   .marquee-track {
     animation: none;

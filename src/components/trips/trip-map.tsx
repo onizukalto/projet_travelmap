@@ -186,7 +186,8 @@ export function TripMap({
         viewBox={`0 0 ${width} ${height}`}
         width={width}
         height={height}
-        role="img"
+        // « group » et non « img » : la carte contient des marqueurs que l'on peut activer.
+        role="group"
         aria-label={onPlace ? "Carte du voyage. Clique sur la carte pour poser une étape." : "Carte de l'itinéraire"}
         onClick={handleClick}
         className={`absolute inset-0 block touch-none ${onPlace ? "cursor-crosshair" : "cursor-grab active:cursor-grabbing"}`}

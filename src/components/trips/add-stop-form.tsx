@@ -28,9 +28,9 @@ export function AddStopForm({ place, placeLoading, onPlaceChange, dayCount, defa
 
   return (
     <section aria-labelledby={`${id}-titre`} className="rounded-panel border border-border bg-surface p-4 md:p-5">
-      <h3 id={`${id}-titre`} className="font-display text-[19px] font-extrabold tracking-[-0.02em] text-ink">
+      <h2 id={`${id}-titre`} className="font-display text-[19px] font-extrabold tracking-[-0.02em] text-ink">
         Ajouter une étape
-      </h3>
+      </h2>
       <p className="mt-0.5 text-caption text-ink-2">Cherche un lieu, ou clique sur la carte.</p>
 
       <div className="mt-3">

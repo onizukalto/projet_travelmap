@@ -42,16 +42,19 @@ function useTemps(progress: MotionValue<number>, i: number) {
  * et chaque temps s'anime à son tour. Avec « réduire les animations » (globals.css),
  * la section redevient une simple suite de trois blocs statiques.
  */
+/** Opacité du texte des temps inactifs. */
+const ESTOMPE = 0.72;
+
 export function HowItWorks() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const t0 = useTemps(scrollYProgress, 0);
   const t1 = useTemps(scrollYProgress, 1);
   const t2 = useTemps(scrollYProgress, 2);
-  // Le texte d'un temps ne disparaît jamais tout à fait : il s'estompe à 35 %.
-  const texte0 = useTransform(t0.opacite, [0, 1], [0.35, 1]);
-  const texte1 = useTransform(t1.opacite, [0, 1], [0.35, 1]);
-  const texte2 = useTransform(t2.opacite, [0, 1], [0.35, 1]);
+  // Le texte d'un temps ne disparaît jamais : estompé, il reste lisible (contraste ≥ 4,5:1).
+  const texte0 = useTransform(t0.opacite, [0, 1], [ESTOMPE, 1]);
+  const texte1 = useTransform(t1.opacite, [0, 1], [ESTOMPE, 1]);
+  const texte2 = useTransform(t2.opacite, [0, 1], [ESTOMPE, 1]);
   const opacitesTexte = [texte0, texte1, texte2];
   const barre = useTransform(scrollYProgress, [0, 1], [0, 1]);
 

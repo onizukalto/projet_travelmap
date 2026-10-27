@@ -37,7 +37,7 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
   return (
     <section aria-label={`Itinéraire : ${itineraire.titre}`} className="overflow-hidden rounded-panel border border-border bg-surface">
       <header className="px-4 pt-4 md:px-5 md:pt-5">
-        <h3 className="font-display text-[24px] leading-tight font-extrabold tracking-[-0.03em] text-ink">{itineraire.titre}</h3>
+        <h2 className="font-display text-[24px] leading-tight font-extrabold tracking-[-0.03em] text-ink">{itineraire.titre}</h2>
         <p className="mt-0.5 text-small text-muted">{itineraire.verification}</p>
       </header>
 
@@ -48,7 +48,7 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
           const panelId = `jour-${itineraire.titre}-${jour.jour}`.replace(/\s+/g, "-");
           return (
             <li key={jour.jour} className="border-t border-border">
-              <h4>
+              <h3>
                 <button
                   type="button"
                   aria-expanded={expanded}
@@ -76,7 +76,7 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
                     className={`size-5 shrink-0 text-ink-2 transition-transform duration-300 ease-[var(--ease-spring)] ${expanded ? "rotate-180" : ""}`}
                   />
                 </button>
-              </h4>
+              </h3>
               {expanded && (
                 <ol id={panelId} className="pop-in flex flex-col gap-3 px-4 pb-4 md:px-5">
                   {/* Jour de route : le trajet, sous le titre (seul s'il n'y a pas d'étape) */}

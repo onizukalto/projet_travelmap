@@ -62,7 +62,7 @@ export function RouteLines({
             key={point.id}
             transform={`translate(${point.x} ${point.y})`}
             opacity={dim(point.day) ? 0.4 : 1}
-            className={`transition-opacity duration-200 ${interactive ? "cursor-pointer outline-none [&:focus-visible>circle:first-child]:stroke-ink" : ""}`}
+            className={`transition-opacity duration-200 ${interactive ? "cursor-pointer outline-none [&:focus-visible>.repere]:stroke-ink [&:focus-visible>.repere]:stroke-[4]" : ""}`}
             role={interactive ? "button" : undefined}
             tabIndex={interactive ? 0 : undefined}
             aria-label={interactive ? label : undefined}
@@ -82,9 +82,9 @@ export function RouteLines({
             <circle
               r={active ? radius + 3 : radius}
               strokeWidth={active ? 3 : 2.5}
-              className={
+              className={`repere ${
                 active ? "fill-visited stroke-ink" : point.pepite ? "fill-pepite stroke-land" : "fill-ink stroke-land"
-              }
+              }`}
             />
             {numbers && (
               <text
@@ -111,6 +111,8 @@ export function RouteLines({
                 {point.name}
               </text>
             )}
+            {/* Zone de clic invisible de 44 px autour du marqueur (cible tactile). */}
+            {interactive && <circle r={22} fill="transparent" />}
           </g>
         );
       })}

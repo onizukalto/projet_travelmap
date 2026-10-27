@@ -190,7 +190,7 @@ function StopRow({
         >
           {index + 1}
         </span>
-        <div className="min-w-0 flex-1 pt-1.5 pl-1">
+        <div className="min-w-0 flex-1 pl-1">
           <label>
             <span className="sr-only">Nom de l&apos;étape {index + 1}</span>
             <input
@@ -199,7 +199,7 @@ function StopRow({
               onBlur={(event) => {
                 if (!event.target.value.trim()) updateStop(trip.id, stop.id, { name: `Étape ${index + 1}` });
               }}
-              className="-mx-1.5 w-full truncate rounded-badge border border-transparent bg-transparent px-1.5 py-0.5 font-semibold text-ink hover:border-line focus-visible:border-ink focus-visible:bg-surface-raised"
+              className="-mx-1.5 min-h-11 w-full truncate rounded-badge border border-transparent bg-transparent px-1.5 font-semibold text-ink hover:border-line focus-visible:border-ink focus-visible:bg-surface-raised"
             />
           </label>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-ink-2">
@@ -250,7 +250,8 @@ function StopRow({
             </label>
           )}
         </div>
-        <div className="flex shrink-0 flex-wrap justify-end">
+        {/* En carré 2 × 2 sur mobile : le nom de l'étape garde de la place. */}
+        <div className="grid shrink-0 grid-cols-2 sm:flex">
           <button
             type="button"
             aria-label={`Monter ${stop.name}`}

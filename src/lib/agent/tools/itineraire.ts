@@ -36,7 +36,8 @@ export function creerProposerItineraire(registre: Registre) {
 
     // Le gardien : chaque étape est confrontée au registre
     execute: async ({ titre, jours }) => {
-      const retires: string[] = [];
+      const retires: string[] = []; // « nom (raison) » des étapes écartées
+      let nonVerifies = 0; // étapes dont le lieu n'est pas dans le registre : on n'a pas de nom à afficher
       const alertes: string[] = [];
 
       const joursVerifies = await Promise.all(
@@ -45,7 +46,7 @@ export function creerProposerItineraire(registre: Registre) {
           const etapes = j.etapes.flatMap((e) => {
             const lieu = registre.get(e.lieuId);
             if (!lieu) {
-              retires.push(e.lieuId);
+              nonVerifies++;
               return [];
             }
             if (lieu.type && TYPES_EXCLUS.has(lieu.type)) {
@@ -77,8 +78,14 @@ export function creerProposerItineraire(registre: Registre) {
         })
       );
 
+      // Ex. « 2 étape(s) retirée(s) : Parking du col (pas un lieu de visite), 1 lieu non vérifié. »
+      const raisons = [
+        ...retires,
+        ...(nonVerifies ? [nonVerifies > 1 ? `${nonVerifies} lieux non vérifiés` : "1 lieu non vérifié"] : []),
+      ];
+      const total = retires.length + nonVerifies;
       const verification = [
-        retires.length ? `${retires.length} étape(s) retirée(s) : lieu non vérifié.` : "Tous les lieux ont été vérifiés.",
+        total ? `${total} étape(s) retirée(s) : ${raisons.join(", ")}.` : "Tous les lieux ont été vérifiés.",
         ...alertes,
       ].join(" ");
 

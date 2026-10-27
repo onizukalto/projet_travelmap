@@ -38,7 +38,8 @@ export function stopsDuJour(itineraire: ItineraireRendu, jour: number): Stop[] {
       ? []
       : [
           {
-            id: `${jour}-${etape.id}`,
+            // La position rend l'id unique même si un lieu apparaît deux fois dans la journée.
+            id: `${jour}-${order}-${etape.id}`,
             day: jour,
             order,
             name: etape.nom,

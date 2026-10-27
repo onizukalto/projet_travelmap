@@ -93,7 +93,8 @@ export function ItineraryView({ itineraire, selectedDay, onSelectDay, onSave }: 
                     <li className="text-caption text-ink-2">Aucune étape vérifiée pour ce jour.</li>
                   )}
                   {jour.etapes.map((etape, index) => (
-                    <StepCard key={`${etape.id}-${index}`} etape={etape} number={index + 1} />
+                    // Clé unique même si un lieu apparaît deux fois dans la journée.
+                    <StepCard key={`${jour.jour}-${index}-${etape.id}`} etape={etape} number={index + 1} />
                   ))}
                 </ol>
               )}

@@ -26,7 +26,8 @@ export function PlannerMap({ itineraire, day, onDayChange }: Props) {
     return suivants.find((s) => s.length > 0) ?? [];
   }, [itineraire, day, stops]);
   const pepites = useMemo(
-    () => new Set(current?.etapes.filter((e) => e.pepite).map((e) => `${day}-${e.id}`) ?? []),
+    // Même format d'id que stopsDuJour : jour, position, lieu.
+    () => new Set(current?.etapes.flatMap((e, i) => (e.pepite ? [`${day}-${i}-${e.id}`] : [])) ?? []),
     [current, day],
   );
 

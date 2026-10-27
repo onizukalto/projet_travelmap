@@ -2,9 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
 import { MapPatterns } from "@/components/map-patterns";
 import { MotionProvider } from "@/components/motion-provider";
+import { NavigationFeedback } from "@/components/navigation-feedback";
 import { StoreHydration } from "@/components/store-hydration";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/toaster";
+import { Suspense } from "react";
 import "./globals.css";
 
 // Texte : Inter, aéré. Titres et chiffres : Inter Tight, très gras et serré.
@@ -52,6 +54,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <MotionProvider>
             <StoreHydration />
             <MapPatterns />
+            {/* Barre de chargement entre les pages (elle lit l'adresse : dans un Suspense) */}
+            <Suspense fallback={null}>
+              <NavigationFeedback />
+            </Suspense>
             {/* En-tête et barre d'onglets : voir (site)/layout.tsx (absents de /connexion) */}
             {children}
             <Toaster />

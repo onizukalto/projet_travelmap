@@ -25,7 +25,7 @@ export default function Accueil() {
         Aller au contenu
       </a>
       <LandingHeader />
-      <main id="contenu" className="flex-1">
+      <main id="contenu" className="flex-1 transition-opacity duration-200 motion-safe:[html[data-nav=depart]_&]:opacity-45">
         <Hero />
         <Features />
         <HowItWorks />

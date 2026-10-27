@@ -22,7 +22,9 @@ export function Tile({ index = 0, label, action, className = "", children, id }:
     <section
       id={id}
       aria-labelledby={label ? titleId : undefined}
-      className={`bento-tile relative flex flex-col p-5 md:p-6 ${className}`}
+      // En arrivant d'une autre page, le contenu des tuiles apparaît en cascade rapide (data-arrivee :
+      // voir PageTransition). La tuile reste opaque : le fond de la grille ne se voit jamais.
+      className={`bento-tile relative flex flex-col p-5 md:p-6 [[data-arrivee]_&>*]:animate-[pop-in_300ms_var(--ease-spring)_backwards] [[data-arrivee]_&>*]:[animation-delay:calc(40ms+var(--i,0)*35ms)] ${className}`}
       style={{ "--i": index } as CSSProperties}
     >
       {(label || action) && (

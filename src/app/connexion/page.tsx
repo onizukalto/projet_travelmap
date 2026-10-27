@@ -21,7 +21,7 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 
 export default function ConnexionPage({ searchParams }: Props) {
   return (
-    <main className="grid min-h-dvh flex-1 bg-bg lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+    <main className="grid min-h-dvh flex-1 bg-bg transition-opacity duration-200 motion-safe:[html[data-nav=depart]_&]:opacity-45 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       {/* À gauche sur grand écran : une tuile bento avec la carte qui se colorie toute seule */}
       <div className="hidden p-4 lg:flex">
         <div className="bento w-full grid-rows-[auto_minmax(0,1fr)_auto]">

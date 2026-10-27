@@ -16,7 +16,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <SiteHeader />
       <main
         id="contenu"
-        className="flex flex-1 flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0"
+        className="flex flex-1 flex-col pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0 transition-opacity duration-200 motion-safe:[html[data-nav=depart]_&]:opacity-45"
       >
         {children}
       </main>

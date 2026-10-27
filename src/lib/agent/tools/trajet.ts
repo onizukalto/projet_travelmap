@@ -54,7 +54,14 @@ export function creerCalculerTrajet(registre: Registre) {
 
       const data = await res.json();
       const route = data.routes?.[0];
-      if (!route) return { erreur: "Aucun trajet trouvé entre ces lieux (pas de route, ou traversée maritime)." };
+      if (!route) {
+        return {
+          erreur:
+            mode === "voiture"
+              ? "Aucune route carrossable entre ces lieux. Si c'est une randonnée, réessaie en mode a-pied."
+              : "Aucun chemin trouvé entre ces lieux (traversée maritime ou zone non cartographiée).",
+        };
+      }
 
       // Un tronçon (« leg ») par paire de lieux consécutifs
       const troncons = (route.legs ?? []).map(
